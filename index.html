@@ -1763,8 +1763,8 @@ function calcCompound(){
   const g=volGrade(vol);
   let html=`<div class="t-out-grid">
       <div><div class="t-ov">${fmtY(yrPts[n-1].p50)}</div><div class="t-ol">中位情景（${n} 年后）</div></div>
-      <div><div class="t-ov" style="color:var(--bad)">${fmtY(yrPts[n-1].p5)}</div><div class="t-ol">悲观情景（5% 分位）</div></div>
-      <div><div class="t-ov" style="color:var(--good)">${fmtY(yrPts[n-1].p95)}</div><div class="t-ol">乐观情景（95% 分位）</div></div>
+      <div><div class="t-ov" style="color:var(--down)">${fmtY(yrPts[n-1].p5)}</div><div class="t-ol">悲观情景（5% 分位，跌→绿）</div></div>
+      <div><div class="t-ov" style="color:var(--up)">${fmtY(yrPts[n-1].p95)}</div><div class="t-ol">乐观情景（95% 分位，涨→红）</div></div>
     </div>
     <div class="t-out-grid" style="margin-top:8px">
       <div><div class="t-ov">${fmtY(fv)}</div><div class="t-ol">理想复利（固定 ${(r*100).toFixed(1)}%）</div></div>
@@ -1790,10 +1790,10 @@ function calcCompound(){
   window.__cpChart=new Chart(document.getElementById("cpChart"),{
     type:"line",
     data:{labels:yrs,datasets:[
-      {label:"悲观(5%)",data:pts5,borderColor:"#6b7280",borderDash:[4,4],pointRadius:0,tension:.3,fill:false},
+      {label:"悲观(5%)",data:pts5,borderColor:"#34d399",borderDash:[4,4],pointRadius:0,tension:.3,fill:false},
       {label:"理想",data:pts,borderColor:"#e8b339",
       backgroundColor:"rgba(232,179,57,.08)",fill:false,tension:.3,pointRadius:0},
-      {label:"乐观(95%)",data:pts95,borderColor:"#34d399",borderDash:[4,4],pointRadius:0,tension:.3,fill:false}]},
+      {label:"乐观(95%)",data:pts95,borderColor:"#f4536b",borderDash:[4,4],pointRadius:0,tension:.3,fill:false}]},
     options:{maintainAspectRatio:false,plugins:{legend:{display:false}},
       scales:{x:{ticks:{color:"#9896a6",maxTicksLimit:6},grid:{color:"rgba(255,255,255,.05)"}},
         y:{ticks:{color:"#9896a6",callback:v=>"¥"+(v>=10000?(v/10000)+"万":v)},grid:{color:"rgba(255,255,255,.05)"}}}}
