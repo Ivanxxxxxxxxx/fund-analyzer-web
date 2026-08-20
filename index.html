@@ -316,13 +316,16 @@
   .overlay.show{display:flex}
   .overlay.show .modal{animation:modalIn .24s cubic-bezier(.22,1,.36,1)}
   @keyframes modalIn{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
-  .modal{width:min(860px,96vw);max-height:92vh;overflow:auto;margin:auto;position:relative;
+  .modal{width:min(860px,96vw);max-height:92vh;display:flex;flex-direction:column;overflow:hidden;margin:auto;position:relative;
     background:linear-gradient(180deg, rgba(28,36,58,.98), rgba(18,24,40,.98));
     border:1px solid var(--line2);border-radius:18px;padding:22px 22px 20px;
     box-shadow:0 30px 80px rgba(0,0,0,.6);backdrop-filter:blur(20px)}
+  /* 修复：头部固定、内容区独立滚动，右上角关闭按钮不再随内容滚动错位 */
+  .modal-head{position:relative;flex:none;padding-right:44px}
+  .modal-body{overflow:auto;min-height:0;display:flex;flex-direction:column;gap:6px}
   .modal h2{font-size:19px;margin:0 0 4px;display:flex;align-items:center;gap:8px}
   .modal .sub{font-size:12.5px;color:var(--muted);margin-bottom:14px;line-height:1.55}
-  .modal-close{position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:9px;
+  .modal-close{position:absolute;top:0;right:0;width:32px;height:32px;border-radius:9px;
     background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--muted);
     font-size:18px;display:grid;place-items:center;cursor:pointer;transition:.15s}
   .modal-close:hover{background:rgba(255,255,255,.12);color:var(--text)}
@@ -616,22 +619,26 @@
 
 <div class="overlay" id="allocOverlay" onclick="if(event.target===this)closeAllocate()">
   <div class="modal" id="allocModal">
-    <button class="modal-close" onclick="closeAllocate()" aria-label="关闭">×</button>
-    <h2>⚡ 一键配资</h2>
-    <div class="sub">从推荐选入的基金，结合实时多因子、相关性、估值分位，给出具体买入金额与可执行优化方案。</div>
-    <div class="sel-list" id="selList"></div>
-    <div class="principal-card">
-      <div class="pc-top"><span>投资本金（¥）</span><span class="pv" id="principalPreview">¥100,000</span></div>
-      <input id="principalInput2" type="number" value="100000" min="0" step="1000" inputmode="decimal" oninput="syncPrincipalPreview()">
-      <div class="principal-presets">
-        <span class="preset-btn" onclick="setPrincipal(50000)">5 万</span>
-        <span class="preset-btn" onclick="setPrincipal(100000)">10 万</span>
-        <span class="preset-btn" onclick="setPrincipal(500000)">50 万</span>
-        <span class="preset-btn" onclick="setPrincipal(1000000)">100 万</span>
-      </div>
+    <div class="modal-head">
+      <button class="modal-close" onclick="closeAllocate()" aria-label="关闭">×</button>
+      <h2>⚡ 一键配资</h2>
+      <div class="sub">从推荐选入的基金，结合实时多因子、相关性、估值分位，给出具体买入金额与可执行优化方案。</div>
     </div>
-    <button class="btn-primary" onclick="genPlan()" style="width:100%">生成配资方案</button>
-    <div id="planBox"></div>
+    <div class="modal-body">
+      <div class="sel-list" id="selList"></div>
+      <div class="principal-card">
+        <div class="pc-top"><span>投资本金（¥）</span><span class="pv" id="principalPreview">¥100,000</span></div>
+        <input id="principalInput2" type="number" value="100000" min="0" step="1000" inputmode="decimal" oninput="syncPrincipalPreview()">
+        <div class="principal-presets">
+          <span class="preset-btn" onclick="setPrincipal(50000)">5 万</span>
+          <span class="preset-btn" onclick="setPrincipal(100000)">10 万</span>
+          <span class="preset-btn" onclick="setPrincipal(500000)">50 万</span>
+          <span class="preset-btn" onclick="setPrincipal(1000000)">100 万</span>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="genPlan()" style="width:100%">生成配资方案</button>
+      <div id="planBox"></div>
+    </div>
   </div>
 </div>
 
@@ -1369,12 +1376,23 @@ async function genPlan(){
   const principal=Math.max(0, (+document.getElementById("principalInput2").value)||0);
   if(principal<=0){ toast("请输入本金"); return; }
   let sel=[...selFunds.values()];
-  const perMin=1000;  // R3：本金较小时自动每类精选1只，避免单只金额过低（如1000元买18只）
+  const perMin=100;  // R3：单只金额低于约100元才触发精选（1000元选4只不触发，避免误缩）
   if(principal < sel.length*perMin){
     const byAsset={};
     sel.forEach(v=>{ const a=v.asset||"其它"; if(!byAsset[a]||(v.score||0)>(byAsset[a].score||0)) byAsset[a]=v; });
-    sel=Object.values(byAsset);
-    toast("本金较小，已按精选模式（每类1只）生成，共 "+sel.length+" 只");
+    const picked=Object.values(byAsset);
+    // 关键修复：精选结果必须同步回 selFunds，保证“选中的”与“方案里的”完全一致，
+    // 否则 confirmAllocate 会对不在方案里的基金按 total×weight 硬补金额 → 超过本金。
+    const removed=[...selFunds.keys()].filter(k=>!picked.some(p=>p.code===k));
+    removed.forEach(k=>{
+      selFunds.delete(k);
+      const b=document.getElementById("sel-"+k); if(b){ b.classList.remove("on"); b.textContent="选入配资"; }
+    });
+    sel=picked;
+    renderSelBar();
+    document.getElementById("selList").innerHTML=[...selFunds.values()].map(v=>
+      `<div class="sel-row"><span class="rf-code">${v.code}</span><span style="flex:1">${v.name}</span><span class="muted">${(v.weight*100).toFixed(0)}%</span><button class="x" onclick="toggleSel('${v.code}')">✕</button></div>`).join("");
+    toast("本金较小，已按精选模式每类保留综合分最高1只（共 "+sel.length+" 只），金额已对应调整");
   }
   const funds=sel.map(v=>({code:v.code,name:v.name,weight:v.weight,asset:v.asset}));
   const exist=holdings.map(h=>({code:h.code,name:h.name,value:(+h.value||0),asset:h.asset||h.type||""}));
@@ -1467,10 +1485,12 @@ function removeFromSel(code){
 async function confirmAllocate(total){
   const plan=window.__lastPlan||{buyPlan:[]};
   const amounts={}; (plan.buyPlan||[]).forEach(b=>amounts[b.code]=b.amount);
-  let added=0;
+  let added=0, sum=0;
   for(const v of selFunds.values()){
-    const amt=Math.round(amounts[v.code]!=null?amounts[v.code]:(total*(v.weight||0)));
+    // 修复：只认方案里的金额；不在方案里的基金直接跳过，不再用 total×weight 硬补（会超本金）
+    const amt=Math.round(amounts[v.code]!=null?amounts[v.code]:0);
     if(amt<=0) continue;
+    sum+=amt;
     const ex=holdings.find(h=>h.code===v.code);
     if(ex){
       // 应用方案目标仓位（覆盖该基金原仓位），保证选中基金合计 = 本金，不叠加膨胀
@@ -1485,7 +1505,7 @@ async function confirmAllocate(total){
   }
   saveHoldings(); renderHoldings(); setDataStamp();
   closeAllocate(); clearSel();
-  toast("已按方案配置 "+added+" 只，合计 "+yuan(total)+"（该批基金已更新为方案目标仓位）");
+  toast("已按方案配置 "+added+" 只，合计 "+yuan(sum)+"（该批基金已更新为方案目标仓位）");
   setFold("portfolio", true);  // 加入组合后展开「我的组合」
   setFold("tools", false);     // 折叠「智能决策」
   if(window.analyze) analyze();
