@@ -8,20 +8,21 @@
 <script src="/static/chart.umd.js"></script>
 <style>
   :root{
-    --bg:#0b0f1a;
-    --panel: rgba(22,29,46,0.72);
-    --panel-solid:#161d2e;
-    --line: rgba(255,255,255,0.08);
-    --line2: rgba(255,255,255,0.14);
-    --text:#eaf0fb;
-    --muted:#8b97ad;
-    --accent:#5b8cff;
-    --accent2:#9b6bff;
-    --up:#ff4d5e;     /* 涨 红（A股习惯） */
-    --down:#19c37d;   /* 跌 绿 */
-    --warn:#ffb020; --good:#19c37d; --bad:#ff4d5e;
+    /* 工作台「深空金融蓝」配色 v2 */
+    --bg:#070b14;
+    --panel: rgba(15,22,38,0.78);
+    --panel-solid:#0f1626;
+    --line: rgba(148,163,184,0.14);
+    --line2: rgba(148,163,184,0.24);
+    --text:#f2f6ff;
+    --muted:#94a3b8;
+    --accent:#38bdf8;
+    --accent2:#6366f1;
+    --up:#fb7185;     /* 涨 红（A股习惯） */
+    --down:#34d399;   /* 跌 绿 */
+    --warn:#fbbf24; --good:#34d399; --bad:#fb7185;
     --radius:16px;
-    --shadow:0 12px 34px rgba(0,0,0,0.40);
+    --shadow:0 14px 40px rgba(2,6,18,0.55);
     --mono:"SF Mono","JetBrains Mono",ui-monospace,Menlo,Consolas,"Courier New",monospace;
   }
   *{box-sizing:border-box}
@@ -31,40 +32,53 @@
     font-family:"Inter","PingFang SC","Microsoft YaHei",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
     font-size:14px;line-height:1.55;
     background:
-      radial-gradient(1000px 520px at 10% -12%, rgba(91,140,255,0.16), transparent 60%),
-      radial-gradient(900px 520px at 102% -4%, rgba(155,107,255,0.14), transparent 55%),
-      linear-gradient(180deg,#0b0f1a 0%, #090d16 100%);
+      radial-gradient(1100px 560px at 8% -14%, rgba(56,189,248,0.14), transparent 60%),
+      radial-gradient(950px 540px at 104% -6%, rgba(99,102,241,0.13), transparent 55%),
+      radial-gradient(700px 500px at 55% 115%, rgba(56,189,248,0.05), transparent 60%),
+      linear-gradient(180deg,#070b14 0%, #05080f 100%);
     background-attachment:fixed;
     -webkit-font-smoothing:antialiased;
   }
-  /* ---------- header ---------- */
+  /* ---------- header（工作台顶栏） ---------- */
   header{
     display:flex;align-items:center;gap:16px;flex-wrap:wrap;
-    padding:18px 28px;border-bottom:1px solid var(--line);
-    background:linear-gradient(180deg, rgba(91,140,255,0.07), transparent);
-    backdrop-filter:blur(8px);
+    padding:14px 28px;border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg, rgba(15,22,38,0.85), rgba(15,22,38,0.55));
+    backdrop-filter:blur(14px);
+    position:sticky;top:0;z-index:40;
   }
   .brand{display:flex;align-items:center;gap:14px}
   .brand .logo{
-    width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:22px;
-    background:linear-gradient(135deg,var(--accent),var(--accent2));
-    box-shadow:0 8px 22px rgba(91,140,255,0.40);
+    width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:20px;
+    background:linear-gradient(135deg,#38bdf8,#6366f1);
+    box-shadow:0 8px 24px rgba(56,189,248,0.35), inset 0 1px 0 rgba(255,255,255,.25);
   }
-  header h1{font-size:20px;margin:0;font-weight:700;letter-spacing:.3px}
-  header .sub{color:var(--muted);font-size:12px;margin-top:2px}
+  header h1{font-size:19px;margin:0;font-weight:700;letter-spacing:.3px;
+    background:linear-gradient(90deg,#e2f3ff,#a5b4fc);-webkit-background-clip:text;background-clip:text;color:transparent}
+  header .sub{color:var(--muted);font-size:11.5px;margin-top:2px}
   .live{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);
     border:1px solid var(--line);border-radius:999px;padding:4px 10px;background:rgba(255,255,255,0.03)}
-  .live .dot{width:7px;height:7px;border-radius:50%;background:var(--good);box-shadow:0 0 0 0 rgba(25,195,125,.6);animation:pulse 2s infinite}
+  .live .dot{width:7px;height:7px;border-radius:50%;background:var(--good);box-shadow:0 0 0 0 rgba(52,211,153,.6);animation:pulse 2s infinite}
   .live.offline .dot{background:var(--muted);box-shadow:none;animation:none}
   .live.offline{color:var(--muted)}
-  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(25,195,125,.5)}70%{box-shadow:0 0 0 7px rgba(25,195,125,0)}100%{box-shadow:0 0 0 0 rgba(25,195,125,0)}}
-  .wrap{padding:22px 28px;max-width:1320px;margin:0 auto}
-  .grid{display:grid;gap:18px}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(52,211,153,.5)}70%{box-shadow:0 0 0 7px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+  /* ---------- 工作台主体栅格：左组合栏 + 右主区 ---------- */
+  .wrap{padding:20px 28px 36px;max-width:1440px;margin:0 auto}
+  .grid{display:grid;gap:16px}
+  .wb-grid{grid-template-columns:330px minmax(0,1fr);align-items:start}
+  .wb-grid>.card:first-child{grid-column:1/-1}                      /* 添加基金命令条：跨全宽 */
+  .wb-grid>[data-key="portfolio"]{grid-column:1;grid-row:2/4}      /* 左栏：我的组合 */
+  .wb-grid>[data-key="tools"]{grid-column:2;grid-row:2}            /* 右主区上：智能决策 */
+  .wb-grid>[data-key="report"]{grid-column:2;grid-row:3}           /* 右主区下：深度分析报告 */
+  @media(max-width:1100px){
+    .wb-grid{grid-template-columns:1fr}
+    .wb-grid>.card:first-child,.wb-grid>[data-key="portfolio"],.wb-grid>[data-key="tools"],.wb-grid>[data-key="report"]{grid-column:auto;grid-row:auto}
+  }
   .cols-2{grid-template-columns:340px 1fr}
   .cols-3{grid-template-columns:repeat(3,1fr)}
   .kpi-grid{grid-template-columns:repeat(3,1fr)}
   /* 分析结果自适应多列网格：宽屏 3 列、平板 2 列、手机 1 列 */
-  .analysis-grid{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+  .analysis-grid{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
   .report-body{display:block}
   .report-group{margin-bottom:14px}
   .report-group:last-child{margin-bottom:0}
@@ -73,59 +87,60 @@
   .group-head .gt{font-size:13.5px;font-weight:600;color:var(--text);letter-spacing:.4px}
   .group-head .gsub{font-size:11.5px;color:var(--muted);font-weight:400;letter-spacing:.2px}
   .group-head .gline{flex:1;height:1px;background:var(--line);opacity:.6}
-  .g-decision .gbar{background:#4f8ff7}
-  .g-action .gbar{background:#19c37d}
-  .g-data .gbar{background:#f0a23a}
-  .g-ref .gbar{background:#9aa0ac}
+  .g-decision .gbar{background:#38bdf8}
+  .g-action .gbar{background:#34d399}
+  .g-data .gbar{background:#fbbf24}
+  .g-ref .gbar{background:#94a3b8}
   .trend-wrap{position:relative;height:300px}
   .table-scroll{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
-  @media(max-width:1024px){.cols-3{grid-template-columns:repeat(2,1fr)}.wrap{padding:20px 20px}}
+  @media(max-width:1024px){.cols-3{grid-template-columns:repeat(2,1fr)}.wrap{padding:18px 18px}}
   @media(max-width:860px){.cols-2,.cols-3{grid-template-columns:1fr}}
   @media(max-width:980px){.kpi-grid{grid-template-columns:1fr}}
   .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
   input,button,select{font-family:inherit}
   input[type=text]{background:rgba(255,255,255,0.04);border:1px solid var(--line);color:var(--text);
     border-radius:10px;padding:11px 14px;width:240px;outline:none;transition:.18s}
-  input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(91,140,255,0.18)}
+  input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,0.18)}
   input.num{width:118px;text-align:right;padding:7px 10px;background:rgba(255,255,255,0.04);
     border:1px solid var(--line);border-radius:8px;color:var(--text);outline:none}
   input.num:focus{border-color:var(--accent)}
   button{cursor:pointer;border:none;border-radius:10px;padding:11px 18px;font-weight:600;transition:.16s}
-  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;
-    box-shadow:0 8px 20px rgba(91,140,255,0.35)}
-  .btn-primary:hover{transform:translateY(-1px);filter:brightness(1.06)}
+  .btn-primary{background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;
+    box-shadow:0 8px 22px rgba(56,189,248,0.32)}
+  .btn-primary:hover{transform:translateY(-1px);filter:brightness(1.08)}
   button:disabled{cursor:wait;opacity:.65;transform:none;filter:none}
   button:disabled:hover{transform:none}
   .btn-ghost{background:rgba(255,255,255,0.05);color:var(--text);border:1px solid var(--line2)}
   .btn-ghost:hover{background:rgba(255,255,255,0.10)}
   .btn-sm{padding:8px 14px;font-size:12px}
   .up{color:var(--up)} .down{color:var(--down)} .muted{color:var(--muted)}
-  /* ---------- 添加栏 + 搜索下拉 ---------- */
+  /* ---------- 添加栏（工作台命令条）+ 搜索下拉 ---------- */
   .add-bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
   .add-input-wrap{position:relative;flex:1;min-width:300px}
-  .add-input-wrap input{padding:13px 16px;font-size:15px}
+  .add-input-wrap input{padding:13px 16px;font-size:15px;border-radius:12px}
   .search-dropdown{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:60;
-    background:rgba(22,29,46,0.97);backdrop-filter:blur(16px);border:1px solid var(--line2);
+    background:rgba(13,19,33,0.97);backdrop-filter:blur(16px);border:1px solid var(--line2);
     border-radius:12px;box-shadow:0 18px 40px rgba(0,0,0,0.5);max-height:320px;overflow:auto;display:none}
   .sd-item{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;
     border-bottom:1px solid rgba(255,255,255,0.04);transition:.12s}
   .sd-item:last-child{border-bottom:none}
-  .sd-item:hover{background:rgba(91,140,255,0.14)}
-  .sd-code{font-family:var(--mono);font-size:12px;color:var(--accent);background:rgba(91,140,255,0.12);
+  .sd-item:hover{background:rgba(56,189,248,0.12)}
+  .sd-code{font-family:var(--mono);font-size:12px;color:var(--accent);background:rgba(56,189,248,0.12);
     padding:2px 7px;border-radius:6px;min-width:54px;text-align:center}
   .sd-name{flex:1;color:var(--text);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .sd-type{font-size:11px;color:var(--muted);background:rgba(255,255,255,0.05);padding:2px 8px;border-radius:6px}
   .sd-empty{padding:14px;color:var(--muted);font-size:13px;text-align:center}
   .hint-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-  .pill-soft{background:rgba(22,184,106,0.10);color:#7fe3a8;border:1px solid rgba(22,184,106,0.25)}
-  /* ---------- card ---------- */
-  .card{background:var(--panel);backdrop-filter:blur(14px);border:1px solid var(--line);
+  .pill-soft{background:rgba(52,211,153,0.10);color:#7fe3a8;border:1px solid rgba(52,211,153,0.25)}
+  /* ---------- card（工作台面板） ---------- */
+  .card{background:linear-gradient(180deg, rgba(18,26,44,0.82), rgba(12,18,32,0.88));
+    backdrop-filter:blur(16px);border:1px solid var(--line);
     border-radius:var(--radius);padding:20px;position:relative;overflow:hidden;box-shadow:var(--shadow)}
   .card::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;
-    background:linear-gradient(90deg,transparent,rgba(91,140,255,.55),transparent)}
+    background:linear-gradient(90deg,transparent,rgba(56,189,248,.55),transparent)}
   h3.sec{margin:0 0 16px;font-size:15px;font-weight:600;display:flex;align-items:center;gap:10px;letter-spacing:.3px}
   h3.sec .ic{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font-size:14px;
-    background:linear-gradient(135deg,rgba(91,140,255,.25),rgba(155,107,255,.25));
+    background:linear-gradient(135deg,rgba(56,189,248,.22),rgba(99,102,241,.22));
     border:1px solid var(--line2)}
   /* ---------- table ---------- */
   table{width:100%;border-collapse:collapse;font-size:13px}
@@ -136,7 +151,7 @@
   .tag{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;
     background:rgba(255,255,255,0.05);border:1px solid var(--line2);color:var(--text)}
   .tag.eq{color:#7db4ff;border-color:rgba(125,180,255,.35)}
-  .tag.def{color:#19c37d;border-color:rgba(25,195,125,.35)}
+  .tag.def{color:#34d399;border-color:rgba(52,211,153,.35)}
   .code{font-weight:700;letter-spacing:.4px}
   .del{cursor:pointer;color:var(--muted);font-weight:700}
   .del:hover{color:var(--bad)}
@@ -180,10 +195,10 @@
   .s-good{color:var(--good)} .s-warn{color:var(--warn)} .s-bad{color:var(--bad)}
   /* ---------- 操作信号 ---------- */
   .sig{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;font-weight:700;font-size:12px;white-space:nowrap}
-  .sig-add{background:rgba(91,140,255,.16);color:#7db4ff;border:1px solid rgba(91,140,255,.4)}
+  .sig-add{background:rgba(56,189,248,.16);color:#7db4ff;border:1px solid rgba(56,189,248,.4)}
   .sig-reduce{background:rgba(255,176,32,.16);color:#ffb020;border:1px solid rgba(255,176,32,.4)}
   .sig-close{background:rgba(255,77,94,.16);color:#ff7a86;border:1px solid rgba(255,77,94,.45)}
-  .sig-hold{background:rgba(25,195,125,.14);color:#19c37d;border:1px solid rgba(25,195,125,.4)}
+  .sig-hold{background:rgba(52,211,153,.14);color:#34d399;border:1px solid rgba(52,211,153,.4)}
   /* ---------- misc ---------- */
   .note{color:#a9b4c9;font-size:12.5px;margin-top:10px;line-height:1.6}
   .empty{color:var(--muted);text-align:center;padding:42px 0;font-size:13px}
@@ -259,36 +274,52 @@
     .trend-wrap{height:180px}
   }
 
-  /* ---------- 折叠分区 fold ---------- */
-  .fold{margin:18px 0;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:rgba(255,255,255,0.015)}
+  /* ---------- 折叠分区 fold（工作台面板） ---------- */
+  .fold{margin:0 0 16px;border:1px solid var(--line);border-radius:18px;overflow:hidden;
+    background:linear-gradient(180deg, rgba(18,26,44,0.80), rgba(12,18,32,0.86));
+    box-shadow:0 10px 30px rgba(2,6,18,0.35)}
   .fold-h{display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer;user-select:none;
-    background:linear-gradient(180deg,rgba(91,140,255,0.07),transparent);transition:.18s}
-  .fold-h:hover{background:linear-gradient(180deg,rgba(91,140,255,0.14),transparent)}
+    background:linear-gradient(180deg,rgba(56,189,248,0.06),transparent);transition:.18s}
+  .fold-h:hover{background:linear-gradient(180deg,rgba(56,189,248,0.12),transparent)}
   .fold.open .fold-h{box-shadow:inset 0 -1px 0 var(--line)}
   .fold-h .ico{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:15px;
-    background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 6px 16px rgba(91,140,255,0.32)}
+    background:linear-gradient(135deg,#38bdf8,#6366f1);box-shadow:0 6px 18px rgba(56,189,248,0.30), inset 0 1px 0 rgba(255,255,255,.22)}
   .fold-h .t{font-size:15px;font-weight:600;letter-spacing:.3px}
-  .fold-h .sum{margin-left:auto;font-size:12px;color:var(--muted);padding-right:8px;text-align:right;
-    max-width:52%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .fold-h .sum{margin-left:auto;font-size:12px;color:var(--muted);padding:4px 12px;text-align:right;
+    max-width:52%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    background:rgba(255,255,255,0.04);border:1px solid var(--line);border-radius:999px}
   .fold-h .ch{color:var(--muted);transition:transform .25s ease}
   .fold.open .ch{transform:rotate(90deg)}
   .fold-h:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
   .fold-b{display:grid;grid-template-rows:0fr;transition:grid-template-rows .28s cubic-bezier(.22,1,.36,1)}
   .fold.open .fold-b{grid-template-rows:1fr}
   .fold-b>div{overflow:hidden;min-height:0}
-  .fold-inner{padding:18px}
+  .fold-inner{padding:16px}
   @media(max-width:767px){
+    .fold{margin:0 0 12px}
     .fold-h{padding:12px 14px;gap:10px}
     .fold-h .t{font-size:14px}
     .fold-h .sum{max-width:46%;font-size:11px}
     .fold-inner{padding:14px 12px}
+  }
+  /* 工作台左栏窄容器：持仓表自动转卡片（容器查询） */
+  .wb-grid>[data-key="portfolio"]{container-type:inline-size;container-name:pf}
+  @container pf (max-width:470px){
+    #holdingsBox table,#holdingsBox thead,#holdingsBox tbody,#holdingsBox tr,#holdingsBox td{display:block;width:auto}
+    #holdingsBox thead{display:none}
+    #holdingsBox tr{border:1px solid var(--line);border-radius:12px;margin:10px 0;padding:6px 10px;background:rgba(255,255,255,.02)}
+    #holdingsBox td{display:flex;justify-content:space-between;align-items:center;gap:12px;border:none;padding:7px 2px;text-align:right}
+    #holdingsBox td::before{content:attr(data-label);color:var(--muted);font-size:12px;text-align:left;flex:none}
+    #holdingsBox td[data-label=""]{display:none}
+    #holdingsBox td input.num{width:130px !important;text-align:right}
+    #holdingsBox td.del{justify-content:flex-end;padding-top:2px}
   }
   /* 多因子推荐基金卡片 */
   .reco-cat{margin:10px 0 4px}
   .reco-cat-h{font-size:13px;font-weight:700;color:var(--text);margin:14px 0 4px;letter-spacing:.3px;display:flex;align-items:center;gap:8px}
   .reco-cat-h:before{content:"";width:3px;height:13px;border-radius:2px;background:linear-gradient(var(--accent),var(--accent2))}
   .reco-fund{background:rgba(255,255,255,0.025);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:12px;padding:12px 14px;margin:10px 0;cursor:pointer;transition:border-color .15s,background .15s}
-  .reco-fund:hover{border-color:var(--accent);background:rgba(91,140,255,0.08)}
+  .reco-fund:hover{border-color:var(--accent);background:rgba(56,189,248,0.08)}
   .rf-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
   .rf-code{font-family:var(--mono);font-size:12px;color:var(--muted)}
   .rf-name{font-size:13.5px;font-weight:600;flex:1}
@@ -300,11 +331,11 @@
   .kpi.sm .value{font-size:17px}
   .kpi.sm .label{font-size:10.5px}
   .kpi.sm .hint{font-size:9.5px;white-space:normal}
-  .dyn-banner{background:rgba(91,140,255,.12);border:1px solid rgba(91,140,255,.35);border-radius:10px;padding:10px 12px;font-size:13px;margin-bottom:10px;line-height:1.5}
+  .dyn-banner{background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.35);border-radius:10px;padding:10px 12px;font-size:13px;margin-bottom:10px;line-height:1.5}
   .warn-banner{background:rgba(255,176,32,.12);border:1px solid rgba(255,176,32,.4);border-radius:10px;padding:8px 12px;font-size:12.5px;margin-bottom:10px;color:#ffcf80}
   /* 一键配资 */
   .rf-sel{margin-left:6px;border:1px solid var(--accent);color:var(--accent);background:transparent;border-radius:999px;padding:2px 10px;font-size:11px;font-weight:600;cursor:pointer;transition:.15s}
-  .rf-sel:hover{background:rgba(91,140,255,.12)}
+  .rf-sel:hover{background:rgba(56,189,248,.12)}
   .rf-sel.on{background:var(--accent);color:#fff}
   .alloc-bar{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:40;display:none;
     align-items:center;gap:14px;background:rgba(20,24,33,.96);border:1px solid var(--accent);border-radius:14px;
@@ -317,7 +348,7 @@
   .overlay.show .modal{animation:modalIn .24s cubic-bezier(.22,1,.36,1)}
   @keyframes modalIn{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
   .modal{width:min(860px,96vw);max-height:92vh;display:flex;flex-direction:column;overflow:hidden;margin:auto;position:relative;
-    background:linear-gradient(180deg, rgba(28,36,58,.98), rgba(18,24,40,.98));
+    background:linear-gradient(180deg, rgba(18,26,44,.98), rgba(12,18,32,.98));
     border:1px solid var(--line2);border-radius:18px;padding:22px 22px 20px;
     box-shadow:0 30px 80px rgba(0,0,0,.6);backdrop-filter:blur(20px)}
   /* 修复：头部固定、内容区独立滚动，右上角关闭按钮不再随内容滚动错位 */
@@ -337,10 +368,10 @@
   .principal-card .pc-top{display:flex;align-items:center;justify-content:space-between;font-size:13px;color:var(--muted)}
   .principal-card .pc-top .pv{font-size:20px;font-weight:700;color:var(--text)}
   .principal-card input{width:100%;margin-top:8px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-size:18px;font-weight:600;outline:none;transition:.18s}
-  .principal-card input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(91,140,255,.18)}
+  .principal-card input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,.18)}
   .principal-presets{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
   .preset-btn{background:rgba(255,255,255,.05);border:1px solid var(--line2);color:var(--muted);border-radius:999px;padding:5px 13px;font-size:12px;cursor:pointer;transition:.15s}
-  .preset-btn:hover{background:rgba(91,140,255,.14);color:var(--text);border-color:var(--accent)}
+  .preset-btn:hover{background:rgba(56,189,248,.14);color:var(--text);border-color:var(--accent)}
   .plan-sec{margin:0 0 8px;font-size:13px;font-weight:700;color:var(--text);letter-spacing:.3px}
   table.plan{width:100%;border-collapse:collapse;font-size:12.5px}
   table.plan th,table.plan td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left}
@@ -359,11 +390,11 @@
   .alloc-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
   /* 一键配资：优化版视觉 */
   .alloc-summary{display:flex;gap:10px;flex-wrap:wrap;margin:2px 0 4px}
-  .alloc-summary .chip{background:rgba(91,140,255,.12);border:1px solid rgba(91,140,255,.3);border-radius:10px;padding:8px 13px;font-size:12.5px;color:var(--muted)}
+  .alloc-summary .chip{background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.3);border-radius:10px;padding:8px 13px;font-size:12.5px;color:var(--muted)}
   .alloc-summary .chip b{color:var(--accent);font-size:16px;margin-left:5px;font-weight:700}
   .plan-card{background:rgba(255,255,255,.025);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:12px;padding:12px 14px;margin:10px 0}
   .rep-tag{display:inline-block;font-size:11px;font-weight:700;color:#ffcf80;background:rgba(255,176,32,.16);border:1px solid rgba(255,176,32,.4);border-radius:999px;padding:2px 11px;margin-bottom:8px}
-  .corr-pill{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:2px 10px;background:rgba(25,195,125,.14);color:#7fe3a8;border:1px solid rgba(25,195,125,.35)}
+  .corr-pill{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:2px 10px;background:rgba(52,211,153,.14);color:#7fe3a8;border:1px solid rgba(52,211,153,.35)}
   .rep-flow{margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px}
   .modal::-webkit-scrollbar,.sel-list::-webkit-scrollbar,.table-scroll::-webkit-scrollbar{width:8px;height:8px}
   .modal::-webkit-scrollbar-thumb,.sel-list::-webkit-scrollbar-thumb,.table-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:8px}
@@ -385,12 +416,12 @@
   .confirm-modal .ct{font-size:15px;font-weight:600;margin:0 0 6px;display:flex;align-items:center;gap:8px}
   .confirm-modal .cm{font-size:13px;color:var(--muted);line-height:1.6;margin:0}
   .cf-actions{display:flex;gap:12px;margin-top:18px;justify-content:flex-end}
-  .btn-danger{background:linear-gradient(135deg,#ff6b6b,#ff4d5e);color:#fff;box-shadow:0 8px 20px rgba(255,77,94,.35)}
+  .btn-danger{background:linear-gradient(135deg,#ff6b6b,#fb7185);color:#fff;box-shadow:0 8px 20px rgba(255,77,94,.35)}
   .btn-danger:hover{filter:brightness(1.06)}
   /* ---------- 回到顶部 ---------- */
   .to-top{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:40;
     width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:18px;color:#fff;
-    background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 10px 28px rgba(91,140,255,.4);
+    background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 10px 28px rgba(56,189,248,.4);
     opacity:0;pointer-events:none;transform:translateY(8px);transition:.25s ease}
   .to-top.show{opacity:1;pointer-events:auto;transform:none}
   .to-top:hover{filter:brightness(1.06)}
@@ -414,7 +445,7 @@
   </div>
 </header>
 
-<div class="wrap grid" style="gap:18px">
+<div class="wrap grid wb-grid">
   <!-- 添加基金 -->
   <div class="card">
     <div class="add-bar">
@@ -445,7 +476,7 @@
   <div class="card">
     <h3 class="sec"><span class="ic">💼</span>持仓明细（市值 / 占比 / 成本 / 盈亏）
       <span style="margin-left:auto" class="row">
-        <span class="pill" id="dataStamp" style="border-color:rgba(25,195,125,.35);color:#7fe3a8">数据更新：—</span>
+        <span class="pill" id="dataStamp" style="border-color:rgba(52,211,153,.35);color:#7fe3a8">数据更新：—</span>
         <button class="btn-ghost btn-sm" onclick="exportJSON()">⬇ 导出</button>
         <button class="btn-ghost btn-sm" onclick="importJSON()">⬆ 导入</button>
         <button class="btn-ghost btn-sm" onclick="fillSample()">✨ 示例</button>
@@ -532,9 +563,9 @@
         <svg viewBox="0 0 160 160" class="gauge">
           <defs>
             <linearGradient id="gaugeGrad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#19c37d"/>
+              <stop offset="0%" stop-color="#34d399"/>
               <stop offset="55%" stop-color="#ffb020"/>
-              <stop offset="100%" stop-color="#ff4d5e"/>
+              <stop offset="100%" stop-color="#fb7185"/>
             </linearGradient>
           </defs>
           <circle cx="80" cy="80" r="66" class="gauge-track"/>
@@ -1012,7 +1043,7 @@ function renderAlloc(w){
   });
   const labels=Object.keys(map).filter(k=>map[k]>0);
   const data=labels.map(k=>+(map[k]*100).toFixed(2));
-  const palette=["#5b8cff","#19c37d","#ffb020","#ff4d5e","#9b6bff","#33c2c2","#ff8a5b"];
+  const palette=["#38bdf8","#34d399","#ffb020","#fb7185","#6366f1","#33c2c2","#ff8a5b"];
   box.innerHTML=`<div style="position:relative;height:240px"><canvas id="allocCanvas"></canvas></div>
     <div class="note">按持仓市值加权汇总各基金最新季报的资产配置（股票/债券/现金/其他）；防御类占比越高通常越稳健。</div>`;
   if(donutChart) donutChart.destroy();
@@ -1042,7 +1073,7 @@ function renderIndustry(holdings,w){
   if(agg){
     const basis=(holdings.find(h=>h.industryBasis)||{}).industryBasis||"基于各基金前十大重仓股(证监会行业)估算";
     html+=`<div class="note" style="margin-bottom:10px">📌 数据口径：${basis}</div>`;
-    const palette=["#5b8cff","#19c37d","#ffb020","#ff4d5e","#9b6bff","#33c2c2","#ff8a5b","#7d8bff"];
+    const palette=["#38bdf8","#34d399","#ffb020","#fb7185","#6366f1","#33c2c2","#ff8a5b","#7d8bff"];
     html+=`<div>`;
     agg.arr.slice(0,8).forEach(([k,v],idx)=>{
       html+=`<div style="display:flex;align-items:center;gap:12px;margin:8px 0">
@@ -1244,8 +1275,8 @@ function renderTrend(dates, portCum, benchCum, benchName){
   const wrap=document.getElementById("trendCanvasWrap");
   if(!portCum || !portCum.length){ box.innerHTML='<div class="empty">暂无可绘制数据。</div>'; wrap.style.display="none"; return; }
   box.innerHTML=""; wrap.style.display="block";
-  const ds=[{label:"我的组合",data:portCum.map(v=>+(v*100).toFixed(2)),borderColor:"#5b8cff",
-    backgroundColor:"rgba(91,140,255,.12)",fill:true,tension:.25,pointRadius:0}];
+  const ds=[{label:"我的组合",data:portCum.map(v=>+(v*100).toFixed(2)),borderColor:"#38bdf8",
+    backgroundColor:"rgba(56,189,248,.12)",fill:true,tension:.25,pointRadius:0}];
   if(benchCum && benchCum.some(v=>v!=null))
     ds.push({label:benchName,data:benchCum.map(v=>v==null?null:+(v*100).toFixed(2)),
       borderColor:"#ffb020",backgroundColor:"transparent",fill:false,tension:.25,pointRadius:0});
@@ -1272,7 +1303,7 @@ async function loadRecommend(){
   const allocHtml = Object.entries(d.alloc).map(([k,v])=>
     `<div style="display:flex;align-items:center;gap:12px;margin:8px 0">
        <div style="width:96px;font-size:12px" class="muted">${k}</div>
-       <div class="bar" style="flex:1"><i style="width:${(v*100).toFixed(0)}%;background:#5b8cff"></i></div>
+       <div class="bar" style="flex:1"><i style="width:${(v*100).toFixed(0)}%;background:#38bdf8"></i></div>
        <div style="width:56px;text-align:right;font-size:12px">${(v*100).toFixed(0)}%</div></div>`).join("");
   const val=env.valuation||{};
   const valHtml = Object.keys(val).length ? (
