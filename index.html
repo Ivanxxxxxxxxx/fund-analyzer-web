@@ -311,6 +311,35 @@ table.plan th{color:var(--muted);font-weight:600}
   .trend-dock{padding:12px 13px 10px}
   .trend-dock .trend-wrap{height:220px}
 }
+
+/* ---------- 投资工具箱 ---------- */
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.tool-card{background:linear-gradient(180deg, rgba(24,24,30,.9), rgba(16,16,20,.92));
+  border:1px solid var(--line);border-radius:14px;padding:18px;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.tool-card::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(232,179,57,.5),transparent)}
+.tool-wide{grid-column:1/-1}
+.tl{display:flex;align-items:center;gap:8px;font-size:14.5px;font-weight:650;margin-bottom:12px;letter-spacing:.3px}
+.tl-ic{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font-size:14px;
+  background:linear-gradient(135deg,rgba(232,179,57,.2),rgba(184,134,11,.16));border:1px solid rgba(232,179,57,.25)}
+.tl-tag{margin-left:auto;font-size:11px;color:var(--muted);border:1px solid var(--line2);border-radius:999px;padding:2px 10px;white-space:nowrap}
+.t-row{display:flex;align-items:center;gap:10px;margin:8px 0}
+.t-row label{flex:1;font-size:13px;color:var(--muted)}
+.t-row .t-in{width:150px;text-align:right;font-family:var(--mono);font-size:14px}
+.t-2col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.t-out{margin-top:12px;padding:12px 13px;background:rgba(232,179,57,.05);border:1px solid rgba(232,179,57,.2);border-radius:12px}
+.t-out-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.t-ov{font-size:17px;font-weight:750;font-family:var(--mono);color:var(--gold);line-height:1.15}
+.t-ol{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}
+.t-note{font-size:12px;color:var(--muted);line-height:1.75;margin-top:10px}
+@media(max-width:900px){
+  .calc-grid{grid-template-columns:1fr}
+  .tool-wide{grid-column:auto}
+  .t-2col{grid-template-columns:1fr}
+  .t-out-grid{grid-template-columns:1fr 1fr}
+  .t-row .t-in{width:120px}
+}
+@media(max-width:480px){.t-out-grid{grid-template-columns:1fr}}
 /* ---------- 响应式 ---------- */
 @media(max-width:1080px){
   .kpi-row{grid-template-columns:repeat(2,1fr)}
@@ -360,6 +389,7 @@ table.plan th{color:var(--muted);font-weight:600}
     <button class="nav-item on" data-view="portfolio" onclick="switchView('portfolio')"><span class="ni-ic">📦</span>组合</button>
     <button class="nav-item" data-view="tools" onclick="switchView('tools')"><span class="ni-ic">🧭</span>决策</button>
     <button class="nav-item" data-view="report" onclick="switchView('report')"><span class="ni-ic">📑</span>报告</button>
+    <button class="nav-item" data-view="calc" onclick="switchView('calc')"><span class="ni-ic">🧮</span>工具</button>
   </aside>
   <main class="stage"><div class="stage-inner">
   <div class="trend-dock">
@@ -547,12 +577,48 @@ table.plan th{color:var(--muted);font-weight:600}
   </div>
 </div></div></div></div>
   </section>
+
+  <section class="view fold" id="view-calc" data-key="calc">
+  <div class="view-h"><span class="vt">🧮 投资工具箱</span><span class="vs">复利 · 租房 · 租售比（珠海参考）</span><span class="vline"></span></div>
+  <div class="fold-b"><div><div class="fold-inner">
+    <div class="calc-grid">
+      <div class="tool-card">
+        <div class="tl"><span class="tl-ic">💰</span>投资复利计算器<span class="tl-tag">按月复利 · 支持定投</span></div>
+        <div class="t-row"><label>初始本金（¥）</label><input class="num t-in" id="cp0" type="number" value="100000" min="0" inputmode="decimal"></div>
+        <div class="t-row"><label>年化收益率（%）</label><input class="num t-in" id="cpr" type="number" value="8" min="0" step="0.1" inputmode="decimal"></div>
+        <div class="t-row"><label>投资年限</label><input class="num t-in" id="cpn" type="number" value="10" min="1" inputmode="numeric"></div>
+        <div class="t-row"><label>每月定投（¥，0=不定投）</label><input class="num t-in" id="cpm" type="number" value="0" min="0" inputmode="decimal"></div>
+        <button class="btn-primary" onclick="calcCompound()" style="width:100%;margin-top:6px">计算复利</button>
+        <div class="t-out" id="cpo"><div class="muted">输入参数后点「计算复利」，看复利曲线与终值。</div></div>
+      </div>
+      <div class="tool-card">
+        <div class="tl"><span class="tl-ic">🏠</span>租房成本计算器<span class="tl-tag">含押金 · 中介 · 涨幅</span></div>
+        <div class="t-row"><label>月租金（¥）</label><input class="num t-in" id="rp0" type="number" value="2500" min="0" inputmode="decimal"></div>
+        <div class="t-row"><label>租期（年）</label><input class="num t-in" id="rpn" type="number" value="5" min="1" inputmode="numeric"></div>
+        <div class="t-row"><label>租金年涨幅（%）</label><input class="num t-in" id="rpg" type="number" value="3" min="0" inputmode="decimal"></div>
+        <button class="btn-primary" onclick="calcRentCost()" style="width:100%;margin-top:6px">计算租房总成本</button>
+        <div class="t-out" id="rpo"><div class="muted">输入参数后点「计算租房总成本」，看租期总支出与年均成本。</div></div>
+      </div>
+      <div class="tool-card tool-wide">
+        <div class="tl"><span class="tl-ic">📊</span>租售比 & 珠海买房建议<span class="tl-tag">合理价位测算 · 区域参考</span></div>
+        <div class="t-2col">
+          <div class="t-row"><label>房源总价（¥）</label><input class="num t-in" id="yp0" type="number" value="1800000" min="0" inputmode="decimal"></div>
+          <div class="t-row"><label>月租金（¥）</label><input class="num t-in" id="ypm" type="number" value="3000" min="0" inputmode="decimal"></div>
+        </div>
+        <button class="btn-primary" onclick="calcRentYield()" style="width:100%;margin-top:6px">测算租售比 & 合理价位</button>
+        <div class="t-out" id="ypo"><div class="muted">输入房源总价和月租金，测算回本年数、年租金回报率、合理购房总价区间，并结合珠海行情给出建议。</div></div>
+      </div>
+    </div>
+  </div></div></div>
+  </section>
+
   </div></main>
 </div>
 <nav class="tabbar">
   <button class="tb-item on" data-view="portfolio" onclick="switchView('portfolio')"><span class="ni-ic">📦</span>组合</button>
   <button class="tb-item" data-view="tools" onclick="switchView('tools')"><span class="ni-ic">🧭</span>决策</button>
   <button class="tb-item" data-view="report" onclick="switchView('report')"><span class="ni-ic">📑</span>报告</button>
+  <button class="tb-item" data-view="calc" onclick="switchView('calc')"><span class="ni-ic">🧮</span>工具</button>
 </nav>
 
 <div class="toast" id="toast"></div>
@@ -1560,7 +1626,7 @@ async function runAnalysis(){
 function toggleFold(h){ /* 工作台视图模式下无折叠，保留兼容占位 */ }
 // 视图切换：portfolio / tools / report
 function switchView(key){
-  const map={portfolio:"view-portfolio", tools:"view-tools", report:"view-report"};
+  const map={portfolio:"view-portfolio", tools:"view-tools", report:"view-report", calc:"view-calc"};
   document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
   const el=document.getElementById(map[key]);
   if(el) el.classList.add("active");
@@ -1580,9 +1646,89 @@ function setFold(key, open, persist){
 function initFolds(){
   const empty = !holdings.length;
   let saved=null; try{ saved=localStorage.getItem("fp_view"); }catch(e){}
-  const start = (saved && ["portfolio","tools","report"].includes(saved)) ? saved : (empty ? "tools" : "portfolio");
+  const start = (saved && ["portfolio","tools","report","calc"].includes(saved)) ? saved : (empty ? "tools" : "portfolio");
   switchView(start);
 }
+
+// ---------- 投资工具箱（复利 / 租房成本 / 租售比·珠海建议） ----------
+function fmtY(n){ return "¥"+Math.round(n).toLocaleString("en-US"); }
+function calcCompound(){
+  const P=Math.max(0,+document.getElementById("cp0").value||0);
+  const r=Math.max(0,+document.getElementById("cpr").value||0)/100;
+  const n=Math.max(1,+document.getElementById("cpn").value||1);
+  const A=Math.max(0,+document.getElementById("cpm").value||0);
+  const mr=r/12, m=n*12;
+  const fvMain=P*Math.pow(1+mr,m);
+  const fvInv=A>0?A*((Math.pow(1+mr,m)-1)/Math.max(mr,1e-9)):0;
+  const fv=fvMain+fvInv;
+  const totalIn=P+A*m, gain=fv-totalIn;
+  const gainPct=totalIn>0?gain/totalIn*100:0;
+  let html=`<div class="t-out-grid">
+      <div><div class="t-ov">${fmtY(fv)}</div><div class="t-ol">${n} 年后终值（账户总额）</div></div>
+      <div><div class="t-ov">${fmtY(gain)}</div><div class="t-ol">总收益（+${gainPct.toFixed(1)}%）</div></div>
+      <div><div class="t-ov">${fmtY(totalIn)}</div><div class="t-ol">累计投入</div></div>
+    </div>
+    <div class="t-note">按年化 ${(r*100).toFixed(1)}% 按月复利，${n} 年共 ${m} 期${A>0?"，每月定投 "+fmtY(A):""}。本测算为理想化复利，实际收益随市场波动。</div>`;
+  html+=`<div style="position:relative;height:170px;margin-top:12px"><canvas id="cpChart"></canvas></div>`;
+  document.getElementById("cpo").innerHTML=html;
+  // 复利曲线（按年采样）
+  const pts=[], yrs=[];
+  for(let y=0;y<=n;y++){
+    const mm=y*12;
+    const f=P*Math.pow(1+mr,mm)+(A>0?A*((Math.pow(1+mr,mm)-1)/Math.max(mr,1e-9)):0);
+    pts.push(+f.toFixed(0)); yrs.push(y+"年");
+  }
+  if(window.__cpChart) window.__cpChart.destroy();
+  window.__cpChart=new Chart(document.getElementById("cpChart"),{
+    type:"line",
+    data:{labels:yrs,datasets:[{label:"账户价值",data:pts,borderColor:"#e8b339",
+      backgroundColor:"rgba(232,179,57,.12)",fill:true,tension:.3,pointRadius:0}]},
+    options:{maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{color:"#9896a6",maxTicksLimit:6},grid:{color:"rgba(255,255,255,.05)"}},
+        y:{ticks:{color:"#9896a6",callback:v=>"¥"+(v>=10000?(v/10000)+"万":v)},grid:{color:"rgba(255,255,255,.05)"}}}}
+  });
+}
+function calcRentCost(){
+  const m0=Math.max(0,+document.getElementById("rp0").value||0);
+  const n=Math.max(1,+document.getElementById("rpn").value||1);
+  const g=Math.max(0,+document.getElementById("rpg").value||0)/100;
+  if(m0<=0){ document.getElementById("rpo").innerHTML='<div class="muted">请输入月租金。</div>'; return; }
+  const deposit=m0, agent=m0;
+  let total=deposit+agent; const years=[];
+  for(let y=1;y<=n;y++){ const yr=m0*12*Math.pow(1+g,y-1); years.push(yr); total+=yr; }
+  total-=deposit;
+  document.getElementById("rpo").innerHTML=`
+    <div class="t-out-grid">
+      <div><div class="t-ov">${fmtY(total)}</div><div class="t-ol">${n} 年租房总支出（已退押金）</div></div>
+      <div><div class="t-ov">${fmtY(total/n)}</div><div class="t-ol">平均每年</div></div>
+      <div><div class="t-ov">${(total/(n*365)).toFixed(0)} 元/天</div><div class="t-ol">日均成本</div></div>
+    </div>
+    <div class="t-note">含押金 ${fmtY(deposit)}（可退）、中介费 ${fmtY(agent)}；租金按每年 +${(g*100).toFixed(0)}% 递增：${years.map((v,i)=>"第"+(i+1)+"年 "+fmtY(v)).join(" · ")}。未计搬家、装修等一次性开销。</div>`;
+}
+function calcRentYield(){
+  const total=Math.max(0,+document.getElementById("yp0").value||0);
+  const rent=Math.max(0,+document.getElementById("ypm").value||0);
+  const box=document.getElementById("ypo");
+  if(total<=0||rent<=0){ box.innerHTML='<div class="muted">请输入房源总价和月租金。</div>'; return; }
+  const years=total/(rent*12);
+  const yld=rent*12/total*100;
+  const low=rent*12*25, high=rent*12*35;
+  let grade,col;
+  if(years<25){ grade="划算（低于市场常见水平）"; col="var(--good)"; }
+  else if(years<=35){ grade="合理区间"; col="var(--good)"; }
+  else if(years<=50){ grade="偏高（依赖房价上涨预期）"; col="var(--warn)"; }
+  else { grade="高估（纯收租极不划算）"; col="var(--bad)"; }
+  const gap=total-high;
+  box.innerHTML=`
+    <div class="t-out-grid">
+      <div><div class="t-ov">${years.toFixed(1)} 年</div><div class="t-ol">回本年数（租售比）</div></div>
+      <div><div class="t-ov" style="color:${col}">${yld.toFixed(2)}%</div><div class="t-ol">年租金回报率 · ${grade}</div></div>
+      <div><div class="t-ov" style="font-size:14px">${fmtY(low)} ~ ${fmtY(high)}</div><div class="t-ol">按回报率 2.9%~4% 的合理总价区间</div></div>
+    </div>
+    <div class="t-note">该房源总价 ${fmtY(total)}${total>high?"，比合理区间上限高 "+fmtY(gap)+"（约 "+(gap/high*100).toFixed(0)+"%）：从纯收租看偏贵，主要靠房价增值预期支撑；若租金未来大涨或自住通勤便利，另当别论。":"，在合理区间内：租金回报能覆盖持有成本，性价比尚可。"}</div>
+    <div class="t-note">珠海参考（2026 年 8 月公开数据，供参考）：全市二手均价约 1.6 万/㎡、主流租售比约 1:45~52（回本 45-52 年、租金回报率约 2%），整体偏高；分区：横琴 ~3.5万/㎡、高新区 ~2.0万/㎡、香洲 ~2.0万/㎡、金湾 ~0.97万/㎡、斗门 ~0.78万/㎡。自住优先看通勤/学区/配套与月供承受力；纯投资需精选核心区优质盘并留足流动性。</div>`;
+}
+
 function updateSummaries(){
   const ab=document.getElementById("analyzeBtn");
   if(ab) ab.disabled = holdings.length<1;
