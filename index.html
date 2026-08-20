@@ -369,6 +369,17 @@ table.plan th{color:var(--muted);font-weight:600}
 button .i{width:14px;height:14px;vertical-align:-0.18em;margin-right:5px}
 
 
+/* ---------- 全局按键/点击反馈 ---------- */
+button:not(:disabled){cursor:pointer;transition:.15s}
+button:not(:disabled):active{transform:translateY(1px) scale(.97);filter:brightness(.95)}
+.nav-item:active,.tb-item:active{transform:scale(.93)}
+.zd-btn:active{transform:scale(.93)}
+.zhd-row:active{transform:scale(.985);background:rgba(232,179,57,.14)}
+.rf-sel:active{transform:scale(.95)}
+.preset-btn:active,.pill:active{transform:scale(.94)}
+button:focus-visible,.zd-btn:focus-visible,.zhd-row:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+/* 高新区参考标记 */
+.zd-r{font-style:normal;font-size:9px;color:var(--muted);border:1px solid var(--line2);border-radius:999px;padding:0 5px;margin-left:3px;vertical-align:1px}
 /* ---------- 地区切换 & 买/等建议 ---------- */
 .zh-dist{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 10px}
 .zd-btn{background:rgba(255,255,255,.05);border:1px solid var(--line2);color:var(--muted);border-radius:999px;padding:5px 13px;font-size:12px;cursor:pointer;transition:.15s}
@@ -1950,16 +1961,16 @@ function renderZhMarket(d){
   let avg=d.secondAvg, chg=d.secondChg, dname="全市";
   if(cur!=="all"){ const dd=dists.find(x=>x.name===cur); if(dd){ avg=dd.secondAvg; chg=dd.chg||"0"; dname=dd.name; } }
   const bar=`<div class="zh-dist">
-    <button class="zd-btn${cur==="all"?" on":""}" onclick="switchZhDist('all')">全市</button>
-    ${dists.map(x=>`<button class="zd-btn${cur===x.name?" on":""}" onclick="switchZhDist('${x.name}')">${x.name}</button>`).join("")}
+    <button class="zd-btn${cur==="all"?" on":""}" data-d="all" onclick="switchZhDist('all')">全市</button>
+    ${dists.map(x=>`<button class="zd-btn${cur===x.name?" on":""}" data-d="${x.name}" onclick="switchZhDist('${x.name}')">${x.name}${x.ref?'<i class="zd-r">参考</i>':""}</button>`).join("")}
   </div>`;
   const rows=dists.map(x=>
-    `<div class="zhd-row${cur===x.name?" on":""}" onclick="switchZhDist('${x.name}')"><span>${x.name}</span><b>${Math.round(x.secondAvg).toLocaleString("en-US")}<i>元/㎡</i></b><i class="zhd-c ${chgCls(x.chg||"0")}">${chgTxt(x.chg||"0")}</i></div>`).join("");
+    `<div class="zhd-row${cur===x.name?" on":""}" data-d="${x.name}" onclick="switchZhDist('${x.name}')"><span>${x.name}${x.ref?' <i class="zd-r">参考</i>':""}</span><b>${Math.round(x.secondAvg).toLocaleString("en-US")}<i>元/㎡</i></b><i class="zhd-c ${chgCls(x.chg||"0")}">${x.ref?"参考":chgTxt(x.chg||"0")}</i></div>`).join("");
   box.innerHTML=`
     <div class="zhm-h"><span><svg class="i"><use href="#i-activity"/></svg> 珠海实时行情</span><span class="zhm-src">${d.source||""}</span><button class="btn-ghost btn-sm" onclick="loadZhMarket(true)"><svg class="i"><use href="#i-refresh"/></svg> 刷新</button></div>
     ${bar}
     <div class="zhm-grid">
-      <div class="zhm-cell"><span class="zh-l">${dname}二手挂牌均价</span><b class="zh-v">${fmtY(avg)}<i>/㎡</i></b><span class="zh-c ${chgCls(chg)}">${chgTxt(chg)}</span></div>
+      <div class="zhm-cell"><span class="zh-l">${dname}二手挂牌均价${dname!=="全市"&&window.__zhDistRef?"（参考）":""}</span><b class="zh-v">${fmtY(avg)}<i>/㎡</i></b><span class="zh-c ${chgCls(chg)}">${chgTxt(chg)}</span></div>
       <div class="zhm-cell"><span class="zh-l">更新时间</span><b class="zh-v" style="font-size:15px">${d.updatedAt||"—"}</b><span class="zh-c ${d.stale?"":"up"}">${d.stale?"参考值":"实时"}</span></div>
       <div class="zhm-cell"><span class="zh-l">数据口径</span><b class="zh-v" style="font-size:15px">挂牌价</b><span class="zh-c up">≠ 成交价</span></div>
     </div>
@@ -1982,8 +1993,19 @@ function renderZhMarket(d){
 }
 function switchZhDist(name){
   window.__zhDist=name;
-  if(window.__zhMarket&&window.__zhMarket.ok) renderZhMarket(window.__zhMarket);
+  if(window.__zhMarket&&window.__zhMarket.ok){
+    const dd=(window.__zhMarket.districts||[]).find(x=>x.name===name);
+    window.__zhDistRef = !!(dd&&dd.ref);
+    renderZhMarket(window.__zhMarket);
+  }
 }
+// 事件委托兜底：点击地区按钮/行必定响应（不依赖内联 onclick）
+document.addEventListener("click", function(ev){
+  const el=ev.target&&ev.target.closest?ev.target.closest("[data-d]"):null;
+  if(el && (el.classList.contains("zd-btn")||el.classList.contains("zhd-row"))){
+    switchZhDist(el.dataset.d);
+  }
+});
 function renderZhTrend(d, distRef){
   const cv=document.getElementById("zhTrendCanvas"); if(!cv) return;
   const tr=d.trend||[]; if(!tr.length) return;
