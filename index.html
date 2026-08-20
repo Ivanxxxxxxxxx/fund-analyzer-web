@@ -652,6 +652,10 @@ button .i{width:14px;height:14px;vertical-align:-0.18em;margin-right:5px}
         <div class="t-row"><label>月租金（¥）</label><input class="num t-in" id="rp0" type="number" value="2500" min="0" inputmode="decimal"></div>
         <div class="t-row"><label>租期（年）</label><input class="num t-in" id="rpn" type="number" value="5" min="1" inputmode="numeric"></div>
         <div class="t-row"><label>租金年涨幅（%）</label><input class="num t-in" id="rpg" type="number" value="3" min="0" inputmode="decimal"></div>
+        <div class="t-row"><label>每月管理费/物业费（¥）</label><input class="num t-in" id="rpf" type="number" value="0" min="0" inputmode="decimal"></div>
+        <div class="t-row"><label>每月停车费（¥，0=无）</label><input class="num t-in" id="rpp" type="number" value="0" min="0" inputmode="decimal"></div>
+        <div class="t-row"><label>搬家费（¥，一次性）</label><input class="num t-in" id="rpmv" type="number" value="0" min="0" inputmode="decimal"></div>
+        <div class="t-row"><label>中介费（月数，1=1个月租金）</label><input class="num t-in" id="rpa" type="number" value="1" min="0" inputmode="decimal"></div>
         <button class="btn-primary" onclick="calcRentCost()" style="width:100%;margin-top:6px">计算租房总成本</button>
         <div class="t-out" id="rpo"><div class="muted">输入参数后点「计算租房总成本」，看租期总支出与年均成本。</div></div>
       </div>
@@ -1695,6 +1699,8 @@ function switchView(key){
   setTimeout(()=>{
     try{ if(typeof donutChart!=="undefined" && donutChart) donutChart.resize(); }catch(e){}
     try{ if(typeof trendChart!=="undefined" && trendChart) trendChart.resize(); }catch(e){}
+    try{ if(typeof window.__cpChart!=="undefined" && window.__cpChart) window.__cpChart.resize(); }catch(e){}
+    try{ if(typeof window.__zhTrendChart!=="undefined" && window.__zhTrendChart) window.__zhTrendChart.resize(); }catch(e){}
   }, 90);
 }
 function setFold(key, open, persist){
@@ -1727,8 +1733,10 @@ function calcCompound(){
       <div><div class="t-ov">${fmtY(totalIn)}</div><div class="t-ol">累计投入</div></div>
     </div>
     <div class="t-note">按年化 ${(r*100).toFixed(1)}% 按月复利，${n} 年共 ${m} 期${A>0?"，每月定投 "+fmtY(A):""}。本测算为理想化复利，实际收益随市场波动。</div>`;
-  html+=`<div style="position:relative;height:170px;margin-top:12px"><canvas id="cpChart"></canvas></div>`;
+  html+=`<div style="position:relative;height:170px;margin-top:12px"><canvas id="cpChart" style="width:100%;height:170px"></canvas></div>`;
   document.getElementById("cpo").innerHTML=html;
+  const cvc=document.getElementById("cpChart");
+  if(!cvc||typeof Chart==="undefined"){ return; }
   // 复利曲线（按年采样）
   const pts=[], yrs=[];
   for(let y=0;y<=n;y++){
@@ -1745,23 +1753,29 @@ function calcCompound(){
       scales:{x:{ticks:{color:"#9896a6",maxTicksLimit:6},grid:{color:"rgba(255,255,255,.05)"}},
         y:{ticks:{color:"#9896a6",callback:v=>"¥"+(v>=10000?(v/10000)+"万":v)},grid:{color:"rgba(255,255,255,.05)"}}}}
   });
+  setTimeout(()=>{ try{ if(window.__cpChart) window.__cpChart.resize(); }catch(e){} }, 80);
 }
 function calcRentCost(){
   const m0=Math.max(0,+document.getElementById("rp0").value||0);
   const n=Math.max(1,+document.getElementById("rpn").value||1);
   const g=Math.max(0,+document.getElementById("rpg").value||0)/100;
+  const feeM=Math.max(0,+document.getElementById("rpf").value||0);
+  const park=Math.max(0,+document.getElementById("rpp").value||0);
+  const move=Math.max(0,+document.getElementById("rpmv").value||0);
+  const agentM=Math.max(0,+document.getElementById("rpa").value||0);
   if(m0<=0){ document.getElementById("rpo").innerHTML='<div class="muted">请输入月租金。</div>'; return; }
-  const deposit=m0, agent=m0;
-  let total=deposit+agent; const years=[];
-  for(let y=1;y<=n;y++){ const yr=m0*12*Math.pow(1+g,y-1); years.push(yr); total+=yr; }
-  total-=deposit;
+  const deposit=m0, agent=m0*agentM;
+  const feeMonth=feeM+park;
+  let total=deposit+agent+move; const years=[];
+  for(let y=1;y<=n;y++){ const yr=(m0*12+feeMonth*12)*Math.pow(1+g,y-1); years.push(yr); total+=yr; }
+  total-=deposit; // 退租退押金
   document.getElementById("rpo").innerHTML=`
     <div class="t-out-grid">
       <div><div class="t-ov">${fmtY(total)}</div><div class="t-ol">${n} 年租房总支出（已退押金）</div></div>
       <div><div class="t-ov">${fmtY(total/n)}</div><div class="t-ol">平均每年</div></div>
       <div><div class="t-ov">${(total/(n*365)).toFixed(0)} 元/天</div><div class="t-ol">日均成本</div></div>
     </div>
-    <div class="t-note">含押金 ${fmtY(deposit)}（可退）、中介费 ${fmtY(agent)}；租金按每年 +${(g*100).toFixed(0)}% 递增：${years.map((v,i)=>"第"+(i+1)+"年 "+fmtY(v)).join(" · ")}。未计搬家、装修等一次性开销。</div>`;
+    <div class="t-note">明细：租金（年增 +${(g*100).toFixed(0)}%）${years.map((v,i)=>"第"+(i+1)+"年 "+fmtY(v)).join(" · ")}；管理费/物业费 ${fmtY(feeM)}/月、停车费 ${fmtY(park)}/月（合计 ${fmtY(feeMonth)}/月，随租金同比例递增）；中介费 ${agentM} 个月租金 ${fmtY(agent)}；搬家费 ${fmtY(move)}；押金 ${fmtY(deposit)} 退租可退。未计装修、家具等一次性开销。</div>`;
 }
 function calcRentYield(){
   const total=Math.max(0,+document.getElementById("yp0").value||0);
