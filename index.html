@@ -1877,7 +1877,7 @@ function calcRentYield(){
   else { grade="高估（纯收租极不划算）"; col="var(--bad)"; }
   const gap=total-high;
   // 珠海实时行情（优先用接口实时值，失败回退内置参考）
-  const mk=window.__zhMarket&&window.__zhMarket.ok?window.__zhMarket:null;
+  const mk=__zhMarket&&__zhMarket.ok?__zhMarket:null;
   let refHtml="", advHtml="";
   if(mk){
     const dstr=(mk.districts||[]).map(x=>x.name+" "+Math.round(x.secondAvg).toLocaleString("en-US")+"元/㎡").join("、");
@@ -2002,10 +2002,10 @@ function renderZhMarket(d){
 }
 function switchZhDist(name){
   window.__zhDist=name;
-  if(window.__zhMarket&&window.__zhMarket.ok){
-    const dd=(window.__zhMarket.districts||[]).find(x=>x.name===name);
+  if(__zhMarket&&__zhMarket.ok){
+    const dd=(__zhMarket.districts||[]).find(x=>x.name===name);
     window.__zhDistRef = !!(dd&&dd.ref);
-    renderZhMarket(window.__zhMarket);
+    renderZhMarket(__zhMarket);
   }
 }
 // 事件委托兜底：点击地区按钮/行必定响应（不依赖内联 onclick）
