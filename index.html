@@ -1851,7 +1851,7 @@ function calcRentYield(){
   let refHtml;
   if(mk){
     const dstr=(mk.districts||[]).map(x=>x.name+" "+Math.round(x.secondAvg).toLocaleString("en-US")+"元/㎡").join("、");
-    refHtml='<div class="t-note">珠海实时参考（'+mk.updatedAt+' · '+(mk.source||"吉屋网")+'）：二手挂牌均价约 '+fmtY(mk.secondAvg)+'/㎡，新房 '+fmtY(mk.newAvg)+'/㎡；主流租售比约 1:45~52（回本 45-52 年、租金回报率约 2%），整体偏高。分区二手挂牌：'+dstr+'。自住优先看通勤/学区/配套与月供承受力；纯投资需精选核心区优质盘并留足流动性。</div>';
+    refHtml='<div class="t-note">珠海实时参考（'+mk.updatedAt+' · '+(mk.source||"吉屋网")+'）：二手挂牌均价约 '+fmtY(mk.secondAvg)+'/㎡；主流租售比约 1:45~52（回本 45-52 年、租金回报率约 2%），整体偏高。分区二手挂牌：'+dstr+'。自住优先看通勤/学区/配套与月供承受力；纯投资需精选核心区优质盘并留足流动性。</div>';
   } else {
     refHtml='<div class="t-note">珠海参考（2026 年 8 月公开数据）：全市二手均价约 1.6 万/㎡、主流租售比约 1:45~52（租金回报率约 2%），整体偏高；分区：横琴 ~3.5万/㎡、高新区 ~2.0万/㎡、香洲 ~2.0万/㎡、金湾 ~0.97万/㎡、斗门 ~0.78万/㎡。自住优先看通勤/学区/配套；纯投资需精选核心区优质盘。</div>';
   }
@@ -1889,9 +1889,9 @@ function renderZhMarket(d){
   box.innerHTML=`
     <div class="zhm-h"><span><svg class="i"><use href="#i-activity"/></svg> 珠海实时行情</span><span class="zhm-src">${d.source||""}</span><button class="btn-ghost btn-sm" onclick="loadZhMarket(true)"><svg class="i"><use href="#i-refresh"/></svg> 刷新</button></div>
     <div class="zhm-grid">
-      <div class="zhm-cell"><span class="zh-l">新房均价</span><b class="zh-v">${fmtY(d.newAvg)}<i>/㎡</i></b><span class="zh-c ${chgCls(d.newChg)}">${chgTxt(d.newChg)}</span></div>
       <div class="zhm-cell"><span class="zh-l">二手挂牌均价</span><b class="zh-v">${fmtY(d.secondAvg)}<i>/㎡</i></b><span class="zh-c ${chgCls(d.secondChg)}">${chgTxt(d.secondChg)}</span></div>
       <div class="zhm-cell"><span class="zh-l">更新时间</span><b class="zh-v" style="font-size:15px">${d.updatedAt||"—"}</b><span class="zh-c ${d.stale?"":"up"}">${d.stale?"参考值":"实时"}</span></div>
+      <div class="zhm-cell"><span class="zh-l">数据口径</span><b class="zh-v" style="font-size:15px">挂牌价</b><span class="zh-c up">≠ 成交价</span></div>
     </div>
     ${rows?`<div class="zhd-title">分区二手挂牌均价（元/㎡）</div><div class="zhd">${rows}</div>`:""}
     <div class="t-note" style="margin-top:8px">挂牌价≠成交价，实际成交以议价为准；数据仅供决策参考。</div>`;
@@ -1905,7 +1905,7 @@ function renderZhMarket(d){
       <div class="zhd-title">近 12 个月挂牌均价走势（元/㎡）</div>
       <div style="position:relative;height:230px"><canvas id="zhTrendCanvas"></canvas></div>
       <div class="zh-table" id="zhTrendTable"></div>
-      <div class="t-note">金色线：二手挂牌均价（月度序列，最新月为实时值）；紫色虚线：新房均价（最新，近似成交参考）。成交价暂无公开实时序列，实际成交请以议价为准。表中涨跌按 A 股习惯：红涨绿跌。</div></div>`;
+      <div class="t-note">金色线：二手挂牌均价（月度序列，最新月为实时值）。成交价暂无公开实时序列，实际成交请以议价为准。表中涨跌按 A 股习惯：红涨绿跌。</div></div>`;
     d.trend=trend;
     renderZhTrend(d);
   }
@@ -1936,8 +1936,6 @@ function renderZhTrend(d){
   for(let i=0;i<tr.length;i++) chgs.push(i>0?((tr[i].price-tr[i-1].price)/tr[i-1].price*100):null);
   const ds=[{label:"二手挂牌均价",data:tr.map(t=>t.price),borderColor:"#e8b339",
     backgroundColor:"rgba(232,179,57,.10)",fill:true,tension:.25,pointRadius:3.5,pointHoverRadius:6}];
-  if(d.newAvg) ds.push({label:"新房均价(最新)",data:tr.map(()=>d.newAvg),borderColor:"#8b7cf6",
-    borderDash:[5,4],pointRadius:0,fill:false,tension:0});
   window.__zhTrendChart=new Chart(cv,{type:"line",
     data:{labels:tr.map(t=>t.month.replace("-","年")+"月"),datasets:ds},
     options:{maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
