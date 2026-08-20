@@ -644,6 +644,8 @@ button .i{width:14px;height:14px;vertical-align:-0.18em;margin-right:5px}
         <div class="t-row"><label>年化收益率（%）</label><input class="num t-in" id="cpr" type="number" value="8" min="0" step="0.1" inputmode="decimal"></div>
         <div class="t-row"><label>投资年限</label><input class="num t-in" id="cpn" type="number" value="10" min="1" inputmode="numeric"></div>
         <div class="t-row"><label>每月定投（¥，0=不定投）</label><input class="num t-in" id="cpm" type="number" value="0" min="0" inputmode="decimal"></div>
+        <div class="t-row"><label>年化波动率（%，影响回撤）</label><input class="num t-in" id="cpv" type="number" value="15" min="0" step="1" inputmode="decimal">
+          <span class="preset-btn" onclick="setVol(8)">低波动</span><span class="preset-btn" onclick="setVol(15)">中波动</span><span class="preset-btn" onclick="setVol(25)">高波动</span></div>
         <button class="btn-primary" onclick="calcCompound()" style="width:100%;margin-top:6px">计算复利</button>
         <div class="t-out" id="cpo"><div class="muted">输入参数后点「计算复利」，看复利曲线与终值。</div></div>
       </div>
@@ -1154,6 +1156,7 @@ function renderRisk(m){
   document.getElementById("riskBox").innerHTML=`
   <div class="grid cols-2">
     <div class="kpi"><span class="label">年化波动率</span><span class="value" style="color:${lvlColor(m.annVol)}">${pct(m.annVol)}</span>
+      <span class="hint" style="color:${volGrade(m.annVol).color}">${volGrade(m.annVol).label}（统一口径：低&lt;10% / 中10-20% / 高&gt;20%）</span>
       <div class="bar"><i style="width:${Math.min(100,m.annVol*200)}%;background:${lvlColor(m.annVol)}"></i></div></div>
     <div class="kpi"><span class="label">历史最大回撤</span><span class="value" style="color:var(--down)">${pct(m.maxDD)}</span>
       <div class="bar"><i style="width:${Math.min(100,-m.maxDD*200)}%;background:var(--down)"></i></div></div>
@@ -1645,7 +1648,7 @@ async function runAdvise(){
     </div>
     <div class="note" style="margin:10px 0">基金经理：${(d.managers&&d.managers.length)?(d.managers[0].name+(d.tenure?("（任职 "+d.tenure+" 年）"):"")):"—"} ｜ 东财五维（选证/收益/抗风险/稳定/择时）：${(d.dims&&Object.keys(d.dims).length)?Object.entries(d.dims).map(([k,v])=>k.slice(0,2)+Math.round(v)).join("/"):"—"}</div>
     <div class="note" style="margin:12px 0">盈利可能性（蒙特卡洛）：1月 ${(d.p1*100).toFixed(0)}% · 3月 ${(d.p3*100).toFixed(0)}% · 6月 ${(d.p6*100).toFixed(0)}% · 1年 ${(d.p12*100).toFixed(0)}%</div>
-    <div class="note">近一年收益 ${signPctPct(d.r250)} · 年化波动 ${pct(d.vol)} · 最大回撤 ${pct(d.mdd)} · 夏普 ${FMT(d.sharpe.toFixed(2))} · 估值Z(相对120日均线) ${d.z.toFixed(1)}</div>
+    <div class="note">近一年收益 ${signPctPct(d.r250)} · 年化波动 ${pct(d.vol)} <span style="color:${volGrade(d.vol).color}">(${volGrade(d.vol).label})</span> · 最大回撤 ${pct(d.mdd)} · 夏普 ${FMT(d.sharpe.toFixed(2))} · 估值Z(相对120日均线) ${d.z.toFixed(1)}</div>
     <ul class="suggestions">${d.reasons.map(r=>`<li class="s-warn">${r}</li>`).join("")}</ul>
     <div class="note">诊断基于历史统计与量化规则，仅供参考，不构成投资意见。</div>`;
   window.__advisedCode=code; updateSummaries();
@@ -1716,39 +1719,81 @@ function initFolds(){
 
 // ---------- 投资工具箱（复利 / 租房成本 / 租售比·珠海建议） ----------
 function fmtY(n){ return "¥"+Math.round(n).toLocaleString("en-US"); }
+// 全局统一波动分级：低<10% / 中10-20% / 高>20%（年化波动率）
+function volGrade(v){
+  if(v==null||isNaN(v)) return {label:"—",color:"var(--muted)"};
+  if(v<0.10) return {label:"低波动",color:"var(--good)"};
+  if(v<0.20) return {label:"中波动",color:"var(--warn)"};
+  return {label:"高波动",color:"var(--bad)"};
+}
+function setVol(v){ const i=document.getElementById("cpv"); if(i){ i.value=v; } }
+
 function calcCompound(){
   const P=Math.max(0,+document.getElementById("cp0").value||0);
   const r=Math.max(0,+document.getElementById("cpr").value||0)/100;
   const n=Math.max(1,+document.getElementById("cpn").value||1);
   const A=Math.max(0,+document.getElementById("cpm").value||0);
+  const vol=Math.max(0,+document.getElementById("cpv").value||0)/100;
   const mr=r/12, m=n*12;
   const fvMain=P*Math.pow(1+mr,m);
   const fvInv=A>0?A*((Math.pow(1+mr,m)-1)/Math.max(mr,1e-9)):0;
   const fv=fvMain+fvInv;
   const totalIn=P+A*m, gain=fv-totalIn;
   const gainPct=totalIn>0?gain/totalIn*100:0;
+  // 蒙特卡洛回撤/情景模拟（月收益 = 年化/12 + 波动/√12 × 标准正态）
+  const SIMS=400;
+  const yrPts=[];
+  for(let y=1;y<=n;y++){
+    const paths=[];
+    for(let sd=0;sd<SIMS;sd++){
+      let bal=P;
+      for(let t=0;t<y*12;t++) bal=bal*(1+mr+vol/Math.sqrt(12)*norm(0,1))+A;
+      paths.push(bal);
+    }
+    paths.sort((a,b)=>a-b);
+    yrPts.push({p5:paths[Math.floor(SIMS*0.05)],p50:paths[Math.floor(SIMS*0.5)],p95:paths[Math.floor(SIMS*0.95)]});
+  }
+  let mddSum=0;
+  for(let sd=0;sd<SIMS;sd++){
+    let bal=P,peak=P,mdd=0;
+    for(let t=0;t<m;t++){ bal=bal*(1+mr+vol/Math.sqrt(12)*norm(0,1))+A; if(bal>peak)peak=bal; const dd=bal/peak-1; if(dd<mdd)mdd=dd; }
+    mddSum+=mdd;
+  }
+  const avgMDD=mddSum/SIMS;
+  const g=volGrade(vol);
   let html=`<div class="t-out-grid">
-      <div><div class="t-ov">${fmtY(fv)}</div><div class="t-ol">${n} 年后终值（账户总额）</div></div>
-      <div><div class="t-ov">${fmtY(gain)}</div><div class="t-ol">总收益（+${gainPct.toFixed(1)}%）</div></div>
-      <div><div class="t-ov">${fmtY(totalIn)}</div><div class="t-ol">累计投入</div></div>
+      <div><div class="t-ov">${fmtY(yrPts[n-1].p50)}</div><div class="t-ol">中位情景（${n} 年后）</div></div>
+      <div><div class="t-ov" style="color:var(--bad)">${fmtY(yrPts[n-1].p5)}</div><div class="t-ol">悲观情景（5% 分位）</div></div>
+      <div><div class="t-ov" style="color:var(--good)">${fmtY(yrPts[n-1].p95)}</div><div class="t-ol">乐观情景（95% 分位）</div></div>
     </div>
-    <div class="t-note">按年化 ${(r*100).toFixed(1)}% 按月复利，${n} 年共 ${m} 期${A>0?"，每月定投 "+fmtY(A):""}。本测算为理想化复利，实际收益随市场波动。</div>`;
+    <div class="t-out-grid" style="margin-top:8px">
+      <div><div class="t-ov">${fmtY(fv)}</div><div class="t-ol">理想复利（固定 ${(r*100).toFixed(1)}%）</div></div>
+      <div><div class="t-ov" style="color:var(--warn)">${(avgMDD*100).toFixed(1)}%</div><div class="t-ol">平均最大回撤（模拟）</div></div>
+      <div><div class="t-ov" style="color:${g.color};font-size:15px">${g.label}</div><div class="t-ol">波动等级（年化 ${(vol*100).toFixed(0)}%）</div></div>
+    </div>
+    <div class="t-note">投入本金 ${fmtY(totalIn)}（${P>0?"初始 "+fmtY(P):""}${A>0?" + 每月定投 "+fmtY(A):""}）。悲观/乐观按 ${SIMS} 条路径模拟的 5%/95% 分位，含年均化波动 ${(vol*100).toFixed(0)}% 的涨跌扰动；中位情景约等于理想值但会略低（复利路径波动损耗）。模拟基于历史波动假设，非收益承诺。</div>`;
   html+=`<div style="position:relative;height:170px;margin-top:12px"><canvas id="cpChart" style="width:100%;height:170px"></canvas></div>`;
   document.getElementById("cpo").innerHTML=html;
   const cvc=document.getElementById("cpChart");
   if(!cvc||typeof Chart==="undefined"){ return; }
-  // 复利曲线（按年采样）
-  const pts=[], yrs=[];
+  // 复利曲线：理想 + 悲观/乐观 三条线（按年采样）
+  const pts=[], pts5=[], pts95=[], yrs=[];
   for(let y=0;y<=n;y++){
     const mm=y*12;
     const f=P*Math.pow(1+mr,mm)+(A>0?A*((Math.pow(1+mr,mm)-1)/Math.max(mr,1e-9)):0);
-    pts.push(+f.toFixed(0)); yrs.push(y+"年");
+    pts.push(+f.toFixed(0));
+    const yy=Math.max(1,y);
+    const yy5=yrPts[yy-1].p5, yy95=yrPts[yy-1].p95;
+    pts5.push(+yy5.toFixed(0)); pts95.push(+yy95.toFixed(0)); yrs.push(y+"年");
   }
   if(window.__cpChart) window.__cpChart.destroy();
   window.__cpChart=new Chart(document.getElementById("cpChart"),{
     type:"line",
-    data:{labels:yrs,datasets:[{label:"账户价值",data:pts,borderColor:"#e8b339",
-      backgroundColor:"rgba(232,179,57,.12)",fill:true,tension:.3,pointRadius:0}]},
+    data:{labels:yrs,datasets:[
+      {label:"悲观(5%)",data:pts5,borderColor:"#6b7280",borderDash:[4,4],pointRadius:0,tension:.3,fill:false},
+      {label:"理想",data:pts,borderColor:"#e8b339",
+      backgroundColor:"rgba(232,179,57,.08)",fill:false,tension:.3,pointRadius:0},
+      {label:"乐观(95%)",data:pts95,borderColor:"#34d399",borderDash:[4,4],pointRadius:0,tension:.3,fill:false}]},
     options:{maintainAspectRatio:false,plugins:{legend:{display:false}},
       scales:{x:{ticks:{color:"#9896a6",maxTicksLimit:6},grid:{color:"rgba(255,255,255,.05)"}},
         y:{ticks:{color:"#9896a6",callback:v=>"¥"+(v>=10000?(v/10000)+"万":v)},grid:{color:"rgba(255,255,255,.05)"}}}}
