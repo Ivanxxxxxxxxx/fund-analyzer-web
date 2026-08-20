@@ -234,14 +234,14 @@ table.plan th{color:var(--muted);font-weight:600}
 /* 替换建议卡 */
 .rep-card{border:1px solid rgba(232,179,57,.3);border-radius:12px;padding:12px 14px;margin:10px 0;background:rgba(232,179,57,.05)}
 .rep-tag{display:inline-block;font-size:11px;font-weight:650;color:#f2c558;border:1px solid rgba(232,179,57,.45);border-radius:999px;padding:2px 10px;margin-bottom:7px}
-.opt-line{font-size:13px;line-height:1.7;color:var(--text)}
+.opt-line{font-size:13.5px;line-height:1.75;color:var(--text)}
 .rep-flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:9px 0;font-size:13px}
 .rep-flow .old{color:var(--bad);text-decoration:line-through;opacity:.85}
 .rep-flow .arrow{color:var(--gold)}
 .rep-flow .new{color:var(--good);font-weight:600}
 .rep-corrs{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .corr-pill{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:2px 10px;background:rgba(34,197,139,.13);color:#7fe3a8;border:1px solid rgba(34,197,139,.32)}
-.rep-reason{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.65}
+.rep-reason{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.7}
 .rep-actions{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
 .suggestions{list-style:none;margin:0;padding:0}
 .suggestions li{border-left:3px solid var(--warn);padding:7px 12px;margin:8px 0;font-size:13px;background:rgba(255,255,255,.02);border-radius:0 10px 10px 0}
@@ -326,12 +326,12 @@ table.plan th{color:var(--muted);font-weight:600}
 .t-row{display:flex;align-items:center;gap:10px;margin:8px 0}
 .t-row label{flex:1;font-size:13px;color:var(--muted)}
 .t-row .t-in{width:150px;text-align:right;font-family:var(--mono);font-size:14px}
-.t-2col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.t-2col{display:grid;grid-template-columns:1fr;gap:2px}
 .t-out{margin-top:12px;padding:12px 13px;background:rgba(232,179,57,.05);border:1px solid rgba(232,179,57,.2);border-radius:12px}
 .t-out-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .t-ov{font-size:17px;font-weight:750;font-family:var(--mono);color:var(--gold);line-height:1.15}
-.t-ol{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}
-.t-note{font-size:12px;color:var(--muted);line-height:1.75;margin-top:10px}
+.t-ol{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.45}
+.t-note{font-size:13px;color:var(--muted);line-height:1.8;margin-top:10px}
 @media(max-width:900px){
   .calc-grid{grid-template-columns:1fr}
   .tool-wide{grid-column:auto}
@@ -347,10 +347,10 @@ table.plan th{color:var(--muted);font-weight:600}
 .zhm-src{font-size:11px;color:var(--muted);font-weight:400}
 .zhm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .zhm-cell{display:flex;flex-direction:column;gap:3px;padding:9px 11px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px}
-.zh-l{font-size:11px;color:var(--muted)}
+.zh-l{font-size:12px;color:var(--muted)}
 .zh-v{font-size:17px;font-weight:750;font-family:var(--mono);color:var(--text)}
 .zh-v i{font-style:normal;font-size:11px;color:var(--muted);font-weight:400;margin-left:2px}
-.zh-c{font-size:11px;font-weight:600}
+.zh-c{font-size:12px;font-weight:600}
 .zh-c.up{color:var(--up)} .zh-c.down{color:var(--down)}
 .zhd-title{font-size:12px;color:var(--muted);margin:12px 0 6px}
 .zhd{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
@@ -362,6 +362,11 @@ table.plan th{color:var(--muted);font-weight:600}
   .zhm-grid{grid-template-columns:1fr}
   .zhd{grid-template-columns:1fr 1fr}
 }
+.i{width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-0.13em;flex:none}
+.ic .i,.tl-ic .i{width:15px;height:15px}
+.ni-ic .i{width:20px;height:20px}
+.k-l .i,.vt .i,.td-t .i{width:15px;height:15px}
+button .i{width:14px;height:14px;vertical-align:-0.18em;margin-right:5px}
 /* ---------- 响应式 ---------- */
 @media(max-width:1080px){
   .kpi-row{grid-template-columns:repeat(2,1fr)}
@@ -405,19 +410,48 @@ table.plan th{color:var(--muted);font-weight:600}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-layers" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></symbol>
+<symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></symbol>
+<symbol id="i-file-text" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></symbol>
+<symbol id="i-calculator" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></symbol>
+<symbol id="i-briefcase" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></symbol>
+<symbol id="i-line-chart" viewBox="0 0 24 24"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></symbol>
+<symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3Z"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/></symbol>
+<symbol id="i-activity" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></symbol>
+<symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></symbol>
+<symbol id="i-package" viewBox="0 0 24 24"><line x1="16.5" x2="7.5" y1="9.4" y2="6.6"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" x2="12" y1="22.08" y2="12"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></symbol>
+<symbol id="i-trending-up" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></symbol>
+<symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
+<symbol id="i-building" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></symbol>
+<symbol id="i-lightbulb" viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></symbol>
+<symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
+<symbol id="i-wallet" viewBox="0 0 24 24"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></symbol>
+<symbol id="i-home" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
+<symbol id="i-bar-chart" viewBox="0 0 24 24"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></symbol>
+<symbol id="i-coins" viewBox="0 0 24 24"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/></symbol>
+<symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></symbol>
+<symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></symbol>
+<symbol id="i-wand" viewBox="0 0 24 24"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M15 9h0"/><path d="M17.8 6.2 19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2 11 5"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+<symbol id="i-refresh" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
+<symbol id="i-zap" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></symbol>
+</defs></svg>
+
 <div class="shell">
   <aside class="nav">
     <div class="nav-logo" title="基金工作台">📊</div>
-    <button class="nav-item on" data-view="portfolio" onclick="switchView('portfolio')"><span class="ni-ic">📦</span>组合</button>
-    <button class="nav-item" data-view="tools" onclick="switchView('tools')"><span class="ni-ic">🧭</span>决策</button>
-    <button class="nav-item" data-view="report" onclick="switchView('report')"><span class="ni-ic">📑</span>报告</button>
-    <button class="nav-item" data-view="calc" onclick="switchView('calc')"><span class="ni-ic">🧮</span>工具</button>
+    <button class="nav-item on" data-view="portfolio" onclick="switchView('portfolio')"><span class="ni-ic"><svg class="i"><use href="#i-layers"/></svg></span>组合</button>
+    <button class="nav-item" data-view="tools" onclick="switchView('tools')"><span class="ni-ic"><svg class="i"><use href="#i-compass"/></svg></span>决策</button>
+    <button class="nav-item" data-view="report" onclick="switchView('report')"><span class="ni-ic"><svg class="i"><use href="#i-file-text"/></svg></span>报告</button>
+    <button class="nav-item" data-view="calc" onclick="switchView('calc')"><span class="ni-ic"><svg class="i"><use href="#i-calculator"/></svg></span>工具</button>
   </aside>
   <main class="stage"><div class="stage-inner">
   <div class="trend-dock">
     <div class="td-head">
-      <span class="td-t">📈 组合走势（全局常驻）</span>
-      <span class="td-s">无论你在哪个工作区，组合表现始终可见 · 点击「开始分析」后生成曲线</span>
+      <span class="td-t"><svg class="i"><use href="#i-line-chart"/></svg>组合走势</span>
       <span class="vline" style="flex:1;height:1px;background:var(--line)"></span>
     </div>
     <div id="trendBox"><div class="empty">点击「开始分析」后展示组合 vs 沪深300 的累计收益曲线。</div></div>
@@ -425,7 +459,7 @@ table.plan th{color:var(--muted);font-weight:600}
   </div>
 
 <section class="view fold open" id="view-portfolio" data-key="portfolio">
-  <div class="view-h"><span class="vt">📦 组合工作台</span><span class="vs" id="sumPortfolio">暂无持仓</span><span class="vline"></span></div>
+  <div class="view-h"><span class="vt"><svg class="i"><use href="#i-layers"/></svg> 组合工作台</span><span class="vs" id="sumPortfolio">暂无持仓</span><span class="vline"></span></div>
 <div class="fold-b"><div><div class="fold-inner">
   <div class="op-bar">
     <div class="op-search">
@@ -437,29 +471,29 @@ table.plan th{color:var(--muted);font-weight:600}
     </div>
     <div class="op-actions">
       <button class="btn-primary btn-solid" id="analyzeBtn" onclick="runAnalysis()">开始分析</button>
-      <button class="btn-ghost btn-sm" onclick="refreshNav()">↻ 刷新</button>
+      <button class="btn-ghost btn-sm" onclick="refreshNav()"><svg class="i"><use href="#i-refresh"/></svg> 刷新</button>
       <span class="live" id="liveBadge"><span class="dot" id="liveDot"></span><span id="liveText">每 2 分钟自动刷新</span></span>
     </div>
   </div>
   <div class="kpi-row">
-    <div class="kpi-card"><div class="k-l">💰 总市值</div><div class="k-v" id="kpiTotal">¥0</div><div class="k-s">当前组合资产规模</div></div>
-    <div class="kpi-card"><div class="k-l">📈 累计盈亏</div><div class="k-v" id="kpiPl">¥0</div><div class="k-s" id="kpiPlSub">—</div></div>
-    <div class="kpi-card"><div class="k-l">🎯 组合健康分</div><div class="k-v" id="kpiScore">—</div><div class="k-s">点击「开始分析」后更新</div></div>
-    <div class="kpi-card"><div class="k-l">🧩 持仓数量</div><div class="k-v" id="kpiCount">0</div><div class="k-s">只基金</div></div>
+    <div class="kpi-card"><div class="k-l"><svg class="i"><use href="#i-wallet"/></svg> 总市值</div><div class="k-v" id="kpiTotal">¥0</div><div class="k-s">当前组合资产规模</div></div>
+    <div class="kpi-card"><div class="k-l"><svg class="i"><use href="#i-trending-up"/></svg> 累计盈亏</div><div class="k-v" id="kpiPl">¥0</div><div class="k-s" id="kpiPlSub">—</div></div>
+    <div class="kpi-card"><div class="k-l"><svg class="i"><use href="#i-target"/></svg> 组合健康分</div><div class="k-v" id="kpiScore">—</div><div class="k-s">点击「开始分析」后更新</div></div>
+    <div class="kpi-card"><div class="k-l"><svg class="i"><use href="#i-package"/></svg> 持仓数量</div><div class="k-v" id="kpiCount">0</div><div class="k-s">只基金</div></div>
   </div>
   <div class="hint-row" style="display:flex;flex-wrap:wrap;gap:8px;margin:-6px 0 14px">
     <span class="pill">数据来源：天天基金公开接口（仅作分析参考，非投资建议）</span>
-    <span class="pill pill-soft">💡 支付宝/蚂蚁财富销售的是同一批公募基金，6 位代码通用</span>
+    <span class="pill pill-soft"><svg class="i"><use href="#i-lightbulb"/></svg> 支付宝/蚂蚁财富销售的是同一批公募基金，6 位代码通用</span>
   </div>
 <!-- 持仓明细 -->
   <div class="card">
-    <h3 class="sec"><span class="ic">💼</span>持仓明细（市值 / 占比 / 成本 / 盈亏）
+    <h3 class="sec"><span class="ic"><svg class="i"><use href="#i-briefcase"/></svg></span>持仓明细（市值 / 占比 / 成本 / 盈亏）
       <span style="margin-left:auto" class="row">
         <span class="pill" id="dataStamp" style="border-color:rgba(52,211,153,.35);color:#7fe3a8">数据更新：—</span>
-        <button class="btn-ghost btn-sm" onclick="exportJSON()">⬇ 导出</button>
-        <button class="btn-ghost btn-sm" onclick="importJSON()">⬆ 导入</button>
-        <button class="btn-ghost btn-sm" onclick="fillSample()">✨ 示例</button>
-        <button class="btn-ghost btn-sm" onclick="clearAll()">🗑 清空</button>
+        <button class="btn-ghost btn-sm" onclick="exportJSON()"><svg class="i"><use href="#i-download"/></svg> 导出</button>
+        <button class="btn-ghost btn-sm" onclick="importJSON()"><svg class="i"><use href="#i-upload"/></svg> 导入</button>
+        <button class="btn-ghost btn-sm" onclick="fillSample()"><svg class="i"><use href="#i-wand"/></svg> 示例</button>
+        <button class="btn-ghost btn-sm" onclick="clearAll()"><svg class="i"><use href="#i-trash"/></svg> 清空</button>
         <input type="file" id="importFile" accept="application/json" style="display:none" onchange="doImport(this)">
       </span>
     </h3>
@@ -472,13 +506,13 @@ table.plan th{color:var(--muted);font-weight:600}
   </section>
 
   <section class="view fold open" id="view-tools" data-key="tools">
-  <div class="view-h"><span class="vt">🧭 智能决策</span><span class="vs" id="sumTools">配置推荐 · 买入诊断</span><span class="vline"></span></div>
+  <div class="view-h"><span class="vt"><svg class="i"><use href="#i-compass"/></svg> 智能决策</span><span class="vs" id="sumTools">配置推荐 · 买入诊断</span><span class="vline"></span></div>
 <div class="fold-b"><div><div class="fold-inner">
 <!-- 智能工具区：推荐 + 诊断 并排 -->
   <div class="grid cols-2">
     <!-- 智能配置推荐 -->
     <div class="card">
-      <h3 class="sec"><span class="ic">🤖</span>智能配置推荐（结合当前市场环境）
+      <h3 class="sec"><span class="ic"><svg class="i"><use href="#i-sparkles"/></svg></span>智能配置推荐（结合当前市场环境）
         <span style="margin-left:auto" class="row">
           <button class="btn-primary btn-sm" onclick="loadRecommend()">🔄 生成推荐</button>
         </span>
@@ -488,7 +522,7 @@ table.plan th{color:var(--muted);font-weight:600}
 
     <!-- 单基金买入诊断 -->
     <div class="card">
-      <h3 class="sec"><span class="ic">🔍</span>单基金买入诊断（给出代码自动分析）</h3>
+      <h3 class="sec"><span class="ic"><svg class="i"><use href="#i-search"/></svg></span>单基金买入诊断（给出代码自动分析）</h3>
       <div class="add-bar">
         <div class="add-input-wrap">
           <input type="text" id="adviseInput" autocomplete="off" placeholder="输入基金代码(如 110011) 诊断是否值得买、适合买多少"
@@ -506,7 +540,7 @@ table.plan th{color:var(--muted);font-weight:600}
   </section>
 
   <section class="view fold" id="view-report" data-key="report">
-  <div class="view-h"><span class="vt">📑 深度分析报告</span><span class="vs" id="sumReport">4 大维度 · 10 项诊断</span><span class="vline"></span></div>
+  <div class="view-h"><span class="vt"><svg class="i"><use href="#i-file-text"/></svg> 深度分析报告</span><span class="vs" id="sumReport">4 大维度 · 10 项诊断</span><span class="vline"></span></div>
 <div class="fold-b"><div><div class="fold-inner">
 <!-- 分析结果：自适应多列网格 -->
   <div class="grid analysis-grid">
@@ -517,11 +551,11 @@ table.plan th{color:var(--muted);font-weight:600}
       <div class="group-head"><span class="gbar"></span><span class="gt">决策层</span><span class="gsub">一眼看清组合状态</span><span class="gline"></span></div>
       <div class="grid analysis-grid">
 <div class="card" id="overviewCard" style="grid-column:1/-1">
-      <h3 class="sec"><span class="ic">🎯</span>组合健康速览（分析后生成）</h3>
+      <h3 class="sec"><span class="ic"><svg class="i"><use href="#i-target"/></svg></span>组合健康速览（分析后生成）</h3>
       <div id="overviewBox" aria-live="polite"><div class="empty">点击「开始分析」后，这里汇总评分、风险与 Top 3 可执行动作。</div></div>
     </div>
 <div class="card">
-      <h3 class="sec"><span class="ic">🩺</span>组合健康评分</h3>
+      <h3 class="sec"><span class="ic"><svg class="i"><use href="#i-activity"/></svg></span>组合健康评分</h3>
       <div class="gauge-wrap">
         <svg viewBox="0 0 160 160" class="gauge">
           <defs>
@@ -548,11 +582,11 @@ table.plan th{color:var(--muted);font-weight:600}
       <div class="group-head"><span class="gbar"></span><span class="gt">行动层</span><span class="gsub">该怎么做 · 优先看这里</span><span class="gline"></span></div>
       <div class="grid analysis-grid">
 <div class="card">
-      <h3 class="sec"><span class="ic">💡</span>可执行的优化建议</h3>
+      <h3 class="sec"><span class="ic"><svg class="i"><use href="#i-lightbulb"/></svg></span>可执行的优化建议</h3>
       <ul class="suggestions" id="suggBox" aria-live="polite"><li class="muted" style="border-left-color:var(--muted)">分析后自动生成针对你组合的诊断与建议。</li></ul>
     </div>
 <div class="card">
-      <h3 class="sec"><span class="ic">📡</span>实时操作信号（加仓 / 减仓 / 平仓 / 持仓）</h3>
+      <h3 class="sec"><span class="ic"><svg class="i"><use href="#i-activity"/></svg></span>实时操作信号（加仓 / 减仓 / 平仓 / 持仓）</h3>
       <div id="signalBox" aria-live="polite"><div class="empty">点击「开始分析」生成实时操作信号（交易时段每 2 分钟自动刷新）。</div></div>
     </div>
       </div>
@@ -562,24 +596,24 @@ table.plan th{color:var(--muted);font-weight:600}
       <div class="group-head"><span class="gbar"></span><span class="gt">数据层</span><span class="gsub">支撑结论的核心指标</span><span class="gline"></span></div>
       <div class="grid analysis-grid">
 <div class="card">
-      <h3 class="sec"><span class="ic">📌</span>组合 KPI</h3>
+      <h3 class="sec"><span class="ic"><svg class="i"><use href="#i-map-pin"/></svg></span>组合 KPI</h3>
       <div id="kpiBox"><div class="empty">点击「开始分析」生成组合指标。</div></div>
     </div>
 <div class="card">
-      <h3 class="sec"><span class="ic">🧩</span>资产配置环形图（按类型）</h3>
+      <h3 class="sec"><span class="ic"><svg class="i"><use href="#i-package"/></svg></span>资产配置环形图（按类型）</h3>
       <div id="allocBox"><div class="empty">分析后展示资产类型分布。</div></div>
     </div>
 <div class="card">
-      <h3 class="sec"><span class="ic">🛡️</span>风险体检</h3>
+      <h3 class="sec"><span class="ic"><svg class="i"><use href="#i-shield"/></svg></span>风险体检</h3>
       <div id="riskBox"><div class="empty">分析后展示波动率 / 最大回撤 / 风险等级。</div></div>
     </div>
 <div class="card">
-      <h3 class="sec"><span class="ic">🔗</span>相关性预警（基金间日收益相关系数）</h3>
+      <h3 class="sec"><span class="ic"><svg class="i"><use href="#i-link"/></svg></span>相关性预警（基金间日收益相关系数）</h3>
       <div id="corrBox"><div class="empty">分析后展示相关性热力图，颜色越红代表同涨同跌风险越高。</div></div>
       <div class="note">相关性越高 → 分散效果越差。建议组合内基金相关性尽量低于 0.7。</div>
     </div>
 <div class="card">
-      <h3 class="sec"><span class="ic">🏭</span>行业集中度与重叠持仓</h3>
+      <h3 class="sec"><span class="ic"><svg class="i"><use href="#i-building"/></svg></span>行业集中度与重叠持仓</h3>
       <div id="industryBox"><div class="empty">分析后展示行业分布、集中度预警与跨基金重叠持仓。</div></div>
       <div class="note">行业占比取自各基金最新季报配置，按持仓市值加权汇总；重叠持仓越多，隐性集中风险越高。</div>
     </div>
@@ -590,7 +624,7 @@ table.plan th{color:var(--muted);font-weight:600}
       <div class="group-head"><span class="gbar"></span><span class="gt">参考层</span><span class="gsub">长期视角 · 仅供参考</span><span class="gline"></span></div>
       <div class="grid analysis-grid">
 <div class="card">
-      <h3 class="sec"><span class="ic">🎲</span>盈利可能性（蒙特卡洛模拟）</h3>
+      <h3 class="sec"><span class="ic"><svg class="i"><use href="#i-trending-up"/></svg></span>盈利可能性（蒙特卡洛模拟）</h3>
       <div id="probBox"><div class="empty">分析后展示不同持有期的盈利概率。</div></div>
       <div class="note">基于历史日收益率做 2000 次路径模拟，概率随持有期拉长通常提升（但不保证未来收益）。</div>
     </div>
@@ -601,11 +635,11 @@ table.plan th{color:var(--muted);font-weight:600}
   </section>
 
   <section class="view fold" id="view-calc" data-key="calc">
-  <div class="view-h"><span class="vt">🧮 投资工具箱</span><span class="vs">复利 · 租房 · 租售比（珠海参考）</span><span class="vline"></span></div>
+  <div class="view-h"><span class="vt"><svg class="i"><use href="#i-calculator"/></svg> 投资工具箱</span><span class="vs">复利 · 租房 · 租售比（珠海参考）</span><span class="vline"></span></div>
   <div class="fold-b"><div><div class="fold-inner">
     <div class="calc-grid">
       <div class="tool-card">
-        <div class="tl"><span class="tl-ic">💰</span>投资复利计算器<span class="tl-tag">按月复利 · 支持定投</span></div>
+        <div class="tl"><span class="tl-ic"><svg class="i"><use href="#i-wallet"/></svg></span>投资复利计算器<span class="tl-tag">按月复利 · 支持定投</span></div>
         <div class="t-row"><label>初始本金（¥）</label><input class="num t-in" id="cp0" type="number" value="100000" min="0" inputmode="decimal"></div>
         <div class="t-row"><label>年化收益率（%）</label><input class="num t-in" id="cpr" type="number" value="8" min="0" step="0.1" inputmode="decimal"></div>
         <div class="t-row"><label>投资年限</label><input class="num t-in" id="cpn" type="number" value="10" min="1" inputmode="numeric"></div>
@@ -614,7 +648,7 @@ table.plan th{color:var(--muted);font-weight:600}
         <div class="t-out" id="cpo"><div class="muted">输入参数后点「计算复利」，看复利曲线与终值。</div></div>
       </div>
       <div class="tool-card">
-        <div class="tl"><span class="tl-ic">🏠</span>租房成本计算器<span class="tl-tag">含押金 · 中介 · 涨幅</span></div>
+        <div class="tl"><span class="tl-ic"><svg class="i"><use href="#i-home"/></svg></span>租房成本计算器<span class="tl-tag">含押金 · 中介 · 涨幅</span></div>
         <div class="t-row"><label>月租金（¥）</label><input class="num t-in" id="rp0" type="number" value="2500" min="0" inputmode="decimal"></div>
         <div class="t-row"><label>租期（年）</label><input class="num t-in" id="rpn" type="number" value="5" min="1" inputmode="numeric"></div>
         <div class="t-row"><label>租金年涨幅（%）</label><input class="num t-in" id="rpg" type="number" value="3" min="0" inputmode="decimal"></div>
@@ -622,7 +656,7 @@ table.plan th{color:var(--muted);font-weight:600}
         <div class="t-out" id="rpo"><div class="muted">输入参数后点「计算租房总成本」，看租期总支出与年均成本。</div></div>
       </div>
       <div class="tool-card tool-wide">
-        <div class="tl"><span class="tl-ic">📊</span>租售比 & 珠海买房建议<span class="tl-tag">合理价位测算 · 区域参考</span></div>
+        <div class="tl"><span class="tl-ic"><svg class="i"><use href="#i-bar-chart"/></svg></span>租售比 & 珠海买房建议<span class="tl-tag">合理价位测算 · 区域参考</span></div>
         <div class="t-2col">
           <div class="t-row"><label>房源总价（¥）</label><input class="num t-in" id="yp0" type="number" value="1800000" min="0" inputmode="decimal"></div>
           <div class="t-row"><label>月租金（¥）</label><input class="num t-in" id="ypm" type="number" value="3000" min="0" inputmode="decimal"></div>
@@ -638,10 +672,10 @@ table.plan th{color:var(--muted);font-weight:600}
   </div></main>
 </div>
 <nav class="tabbar">
-  <button class="tb-item on" data-view="portfolio" onclick="switchView('portfolio')"><span class="ni-ic">📦</span>组合</button>
-  <button class="tb-item" data-view="tools" onclick="switchView('tools')"><span class="ni-ic">🧭</span>决策</button>
-  <button class="tb-item" data-view="report" onclick="switchView('report')"><span class="ni-ic">📑</span>报告</button>
-  <button class="tb-item" data-view="calc" onclick="switchView('calc')"><span class="ni-ic">🧮</span>工具</button>
+  <button class="tb-item on" data-view="portfolio" onclick="switchView('portfolio')"><span class="ni-ic"><svg class="i"><use href="#i-layers"/></svg></span>组合</button>
+  <button class="tb-item" data-view="tools" onclick="switchView('tools')"><span class="ni-ic"><svg class="i"><use href="#i-compass"/></svg></span>决策</button>
+  <button class="tb-item" data-view="report" onclick="switchView('report')"><span class="ni-ic"><svg class="i"><use href="#i-file-text"/></svg></span>报告</button>
+  <button class="tb-item" data-view="calc" onclick="switchView('calc')"><span class="ni-ic"><svg class="i"><use href="#i-calculator"/></svg></span>工具</button>
 </nav>
 
 <div class="toast" id="toast"></div>
@@ -649,7 +683,7 @@ table.plan th{color:var(--muted);font-weight:600}
 <!-- 一键配资：浮动栏 + 弹窗 -->
 <div class="alloc-bar" id="allocBar">
   <span class="cnt">已选 <b id="selCnt">0</b> 只 · 合计权重 <b id="selW">0%</b></span>
-  <button class="btn-primary btn-sm" onclick="openAllocate()">⚡ 一键配资</button>
+  <button class="btn-primary btn-sm" onclick="openAllocate()"><svg class="i"><use href="#i-zap"/></svg> 一键配资</button>
   <button class="rf-sel" style="border-color:var(--muted);color:var(--muted)" onclick="clearSel()">清空</button>
 </div>
 
@@ -657,7 +691,7 @@ table.plan th{color:var(--muted);font-weight:600}
   <div class="modal" id="allocModal">
     <div class="modal-head">
       <button class="modal-close" onclick="closeAllocate()" aria-label="关闭">×</button>
-      <h2>⚡ 一键配资</h2>
+      <h2><svg class="i"><use href="#i-zap"/></svg> 一键配资</h2>
       <div class="sub">从推荐选入的基金，结合实时多因子、相关性、估值分位，给出具体买入金额与可执行优化方案。</div>
     </div>
     <div class="modal-body">
@@ -813,7 +847,7 @@ document.addEventListener("click", e=>{
 
 function renderHoldings(){
   const box=document.getElementById("holdingsBox");
-  if(!holdings.length){ box.innerHTML='<div class="empty">还没有基金，先在上方输入代码添加吧。<br><button class="btn-ghost btn-sm" style="margin-top:12px" onclick="sampleAndAnalyze()">✨ 载入示例并一键分析</button></div>'; return; }
+  if(!holdings.length){ box.innerHTML='<div class="empty">还没有基金，先在上方输入代码添加吧。<br><button class="btn-ghost btn-sm" style="margin-top:12px" onclick="sampleAndAnalyze()"><svg class="i"><use href="#i-wand"/></svg> 载入示例并一键分析</button></div>'; return; }
   const total=holdings.reduce((s,h)=>s+(+h.value||0),0)||1;
   const totalCost=holdings.reduce((s,h)=>s+(+h.cost||0),0);
   const totalPL=total-totalCost;
@@ -1077,7 +1111,7 @@ function renderIndustry(holdings,w){
   let html="";
   if(agg){
     const basis=(holdings.find(h=>h.industryBasis)||{}).industryBasis||"基于各基金前十大重仓股(证监会行业)估算";
-    html+=`<div class="note" style="margin-bottom:10px">📌 数据口径：${basis}</div>`;
+    html+=`<div class="note" style="margin-bottom:10px"><svg class="i"><use href="#i-map-pin"/></svg> 数据口径：${basis}</div>`;
     const palette=["#38bdf8","#34d399","#ffb020","#fb7185","#6366f1","#33c2c2","#ff8a5b","#7d8bff"];
     html+=`<div>`;
     agg.arr.slice(0,8).forEach(([k,v],idx)=>{
@@ -1251,7 +1285,7 @@ function renderSignals(rows){
   rows.forEach(r=>cnt[r.action]++);
   const label={add:"加仓",reduce:"减仓",close:"平仓",hold:"继续持仓"};
   const sum=`<div class="row" style="margin-bottom:14px;gap:8px">
-     <span class="pill">📡 组合操作概览（随净值实时刷新）</span>
+     <span class="pill"><svg class="i"><use href="#i-activity"/></svg> 组合操作概览（随净值实时刷新）</span>
      <span class="sig sig-add">加仓 ${cnt.add}</span>
      <span class="sig sig-reduce">减仓 ${cnt.reduce}</span>
      <span class="sig sig-close">平仓 ${cnt.close}</span>
@@ -1338,12 +1372,12 @@ async function loadRecommend(){
     }).join("");
     return `<div class="reco-cat"><div class="reco-cat-h">${cat}</div>${rows}</div>`;
   }).join("") || '<span class="muted">基金池校验未通过（数据源海外受限），请手动搜索代码添加。</span>';
-  const dynBanner = `<div class="dyn-banner">📡 <b>动态实时推荐</b>（非内置名单）：本次实时扫描全市场 <b>${d.universe}</b> 只候选基金，按多因子评分精选。数据更新于 <b>${d.generatedAt||"—"}</b>（每 30 分钟自动重扫）。</div>`;
+  const dynBanner = `<div class="dyn-banner"><svg class="i"><use href="#i-activity"/></svg> <b>动态实时推荐</b>（非内置名单）：本次实时扫描全市场 <b>${d.universe}</b> 只候选基金，按多因子评分精选。数据更新于 <b>${d.generatedAt||"—"}</b>（每 30 分钟自动重扫）。</div>`;
   const warnBanner = (d.note && d.note.indexOf("暂不可用")>=0) ? `<div class="warn-banner">⚠️ 部分品类实时榜单在本节点暂不可用，已留空（可手动添加对应基金）。</div>` : "";
   box.innerHTML=`
     ${dynBanner}
     ${warnBanner}
-    <div class="note" style="margin-bottom:10px">📊 <b>市场环境：</b>${regimeTxt}</div>
+    <div class="note" style="margin-bottom:10px"><svg class="i"><use href="#i-bar-chart"/></svg> <b>市场环境：</b>${regimeTxt}</div>
     <div style="font-size:13px;font-weight:600;margin:6px 0">建议资产配置比例</div>
     ${allocHtml}
     ${valHtml}
@@ -1767,20 +1801,20 @@ let __zhMarket=null, __zhLoaded=false;
 async function loadZhMarket(force){
   const box=document.getElementById("zhMarket"); if(!box) return;
   if(__zhLoaded && !force){ renderZhMarket(__zhMarket); return; }
-  box.innerHTML='<div class="zhm-h"><span>📡 珠海实时行情</span><button class="btn-ghost btn-sm" onclick="loadZhMarket(true)">↻ 刷新</button></div><div class="muted" style="padding:6px 0">正在获取珠海挂牌价…</div>';
+  box.innerHTML='<div class="zhm-h"><span><svg class="i"><use href="#i-activity"/></svg> 珠海实时行情</span><button class="btn-ghost btn-sm" onclick="loadZhMarket(true)"><svg class="i"><use href="#i-refresh"/></svg> 刷新</button></div><div class="muted" style="padding:6px 0">正在获取珠海挂牌价…</div>';
   const d=await api("/api/zhuhai-market", 40000).catch(()=>null);
   __zhMarket=d; __zhLoaded=true;
   renderZhMarket(d);
 }
 function renderZhMarket(d){
   const box=document.getElementById("zhMarket"); if(!box) return;
-  if(!d||!d.ok){ box.innerHTML='<div class="zhm-h"><span>📡 珠海实时行情</span><button class="btn-ghost btn-sm" onclick="loadZhMarket(true)">↻ 刷新</button></div><div class="muted" style="padding:6px 0">行情获取失败，建议按当地实际挂牌价参考。</div>'; return; }
+  if(!d||!d.ok){ box.innerHTML='<div class="zhm-h"><span><svg class="i"><use href="#i-activity"/></svg> 珠海实时行情</span><button class="btn-ghost btn-sm" onclick="loadZhMarket(true)"><svg class="i"><use href="#i-refresh"/></svg> 刷新</button></div><div class="muted" style="padding:6px 0">行情获取失败，建议按当地实际挂牌价参考。</div>'; return; }
   const chgCls=v=>String(v).startsWith("-")?"down":"up";
   const chgTxt=v=>String(v).startsWith("-")?v+"%":(String(v).startsWith("+")?v+"%":"+"+v+"%");
   const rows=(d.districts||[]).map(x=>
     `<div class="zhd-row"><span>${x.name}</span><b>${Math.round(x.secondAvg).toLocaleString("en-US")}<i>元/㎡</i></b></div>`).join("");
   box.innerHTML=`
-    <div class="zhm-h"><span>📡 珠海实时行情</span><span class="zhm-src">${d.source||""}</span><button class="btn-ghost btn-sm" onclick="loadZhMarket(true)">↻ 刷新</button></div>
+    <div class="zhm-h"><span><svg class="i"><use href="#i-activity"/></svg> 珠海实时行情</span><span class="zhm-src">${d.source||""}</span><button class="btn-ghost btn-sm" onclick="loadZhMarket(true)"><svg class="i"><use href="#i-refresh"/></svg> 刷新</button></div>
     <div class="zhm-grid">
       <div class="zhm-cell"><span class="zh-l">新房均价</span><b class="zh-v">${fmtY(d.newAvg)}<i>/㎡</i></b><span class="zh-c ${chgCls(d.newChg)}">${chgTxt(d.newChg)}</span></div>
       <div class="zhm-cell"><span class="zh-l">二手挂牌均价</span><b class="zh-v">${fmtY(d.secondAvg)}<i>/㎡</i></b><span class="zh-c ${chgCls(d.secondChg)}">${chgTxt(d.secondChg)}</span></div>
@@ -1788,6 +1822,28 @@ function renderZhMarket(d){
     </div>
     ${rows?`<div class="zhd-title">分区二手挂牌均价（元/㎡）</div><div class="zhd">${rows}</div>`:""}
     <div class="t-note" style="margin-top:8px">挂牌价≠成交价，实际成交以议价为准；数据仅供决策参考。</div>`;
+  if((d.trend||[]).length){
+    box.innerHTML+=`<div class="zh-trend">
+      <div class="zhd-title">近 12 个月挂牌均价走势（元/㎡）</div>
+      <div style="position:relative;height:200px"><canvas id="zhTrendCanvas"></canvas></div>
+      <div class="t-note">金色线：二手挂牌均价（月度序列，最新月为实时值）；紫色虚线：新房均价（最新，近似成交参考）。成交价暂无公开实时序列，实际成交请以议价为准。</div></div>`;
+    renderZhTrend(d);
+  }
+}
+function renderZhTrend(d){
+  const cv=document.getElementById("zhTrendCanvas"); if(!cv) return;
+  const tr=d.trend||[]; if(!tr.length) return;
+  if(window.__zhTrendChart) window.__zhTrendChart.destroy();
+  const ds=[{label:"二手挂牌均价",data:tr.map(t=>t.price),borderColor:"#e8b339",
+    backgroundColor:"rgba(232,179,57,.10)",fill:true,tension:.3,pointRadius:2}];
+  if(d.newAvg) ds.push({label:"新房均价(最新)",data:tr.map(()=>d.newAvg),borderColor:"#8b7cf6",
+    borderDash:[5,4],pointRadius:0,fill:false,tension:0});
+  window.__zhTrendChart=new Chart(cv,{type:"line",
+    data:{labels:tr.map(t=>t.month.slice(2)),datasets:ds},
+    options:{maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:"#f1f0ea",boxWidth:10,padding:8,font:{size:11}}}},
+      scales:{x:{ticks:{color:"#9896a6",maxTicksLimit:7},grid:{color:"rgba(255,255,255,.05)"}},
+        y:{ticks:{color:"#9896a6",callback:v=>v>=10000?(v/10000)+"万":v},grid:{color:"rgba(255,255,255,.05)"}}}}});
 }
 function updateSummaries(){
   const ab=document.getElementById("analyzeBtn");
