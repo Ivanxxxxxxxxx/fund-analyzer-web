@@ -1953,45 +1953,52 @@ const ZH_TREND_BASE=[["2025-09",17641],["2025-10",17513],["2025-11",17162],["202
   ["2026-05",16270],["2026-06",16245],["2026-07",16158],["2026-08",16093]];
 function renderZhMarket(d){
   const box=document.getElementById("zhMarket"); if(!box) return;
-  // 重写 DOM 前先销毁走势图实例，避免 canvas 被替换后 Chart 状态错乱
-  if(window.__zhTrendChart){ try{ window.__zhTrendChart.destroy(); }catch(e){} window.__zhTrendChart=null; }
   if(!d||!d.ok){ box.innerHTML='<div class="zhm-h"><span><svg class="i"><use href="#i-activity"/></svg> 珠海实时行情</span><button class="btn-ghost btn-sm" onclick="loadZhMarket(true)"><svg class="i"><use href="#i-refresh"/></svg> 刷新</button></div><div class="muted" style="padding:6px 0">行情获取失败，建议按当地实际挂牌价参考。</div>'; return; }
   const chgCls=v=>String(v).startsWith("-")?"down":"up";
   const chgTxt=v=>String(v).startsWith("-")?v+"%":(String(v).startsWith("+")?v+"%":"+"+v+"%");
   const dists=d.districts||[];
   const cur=window.__zhDist||"all";
-  let avg=d.secondAvg, chg=d.secondChg, dname="全市";
-  if(cur!=="all"){ const dd=dists.find(x=>x.name===cur); if(dd){ avg=dd.secondAvg; chg=dd.chg||"0"; dname=dd.name; } }
+  let avg=d.secondAvg, chg=d.secondChg, dname="全市", dref=false;
+  if(cur!=="all"){ const dd=dists.find(x=>x.name===cur); if(dd){ avg=dd.secondAvg; chg=dd.chg||"0"; dname=dd.name; dref=!!dd.ref; } }
   const bar=`<div class="zh-dist">
-    <button class="zd-btn${cur==="all"?" on":""}" data-d="all" >全市</button>
-    ${dists.map(x=>`<button class="zd-btn${cur===x.name?" on":""}" data-d="${x.name}" >${x.name}${x.ref?'<i class="zd-r">参考</i>':""}</button>`).join("")}
+    <button class="zd-btn${cur==="all"?" on":""}" data-d="all">全市</button>
+    ${dists.map(x=>`<button class="zd-btn${cur===x.name?" on":""}" data-d="${x.name}">${x.name}${x.ref?'<i class="zd-r">参考</i>':""}</button>`).join("")}
   </div>`;
   const rows=dists.map(x=>
-    `<div class="zhd-row${cur===x.name?" on":""}" data-d="${x.name}" ><span>${x.name}${x.ref?' <i class="zd-r">参考</i>':""}</span><b>${Math.round(x.secondAvg).toLocaleString("en-US")}<i>元/㎡</i></b><i class="zhd-c ${chgCls(x.chg||"0")}">${x.ref?"参考":chgTxt(x.chg||"0")}</i></div>`).join("");
-  box.innerHTML=`
+    `<div class="zhd-row${cur===x.name?" on":""}" data-d="${x.name}"><span>${x.name}${x.ref?' <i class="zd-r">参考</i>':""}</span><b>${Math.round(x.secondAvg).toLocaleString("en-US")}<i>元/㎡</i></b><i class="zhd-c ${chgCls(x.chg||"0")}">${x.ref?"参考":chgTxt(x.chg||"0")}</i></div>`).join("");
+  const headHtml=`
     <div class="zhm-h"><span><svg class="i"><use href="#i-activity"/></svg> 珠海实时行情</span><span class="zhm-src">${d.source||""}</span><button class="btn-ghost btn-sm" onclick="loadZhMarket(true)"><svg class="i"><use href="#i-refresh"/></svg> 刷新</button></div>
     ${bar}
     <div class="zhm-grid">
-      <div class="zhm-cell"><span class="zh-l">${dname}二手挂牌均价${dname!=="全市"&&window.__zhDistRef?"（参考）":""}</span><b class="zh-v">${fmtY(avg)}<i>/㎡</i></b><span class="zh-c ${chgCls(chg)}">${chgTxt(chg)}</span></div>
+      <div class="zhm-cell"><span class="zh-l">${dname}二手挂牌均价${dname!=="全市"&&dref?"（参考）":""}</span><b class="zh-v">${fmtY(avg)}<i>/㎡</i></b><span class="zh-c ${chgCls(chg)}">${chgTxt(chg)}</span></div>
       <div class="zhm-cell"><span class="zh-l">更新时间</span><b class="zh-v" style="font-size:15px">${d.updatedAt||"—"}</b><span class="zh-c ${d.stale?"":"up"}">${d.stale?"参考值":"实时"}</span></div>
       <div class="zhm-cell"><span class="zh-l">数据口径</span><b class="zh-v" style="font-size:15px">挂牌价</b><span class="zh-c up">≠ 成交价</span></div>
     </div>
     ${rows?`<div class="zhd-title">各区二手挂牌均价（点击切换地区）</div><div class="zhd">${rows}</div>`:""}
     <div class="t-note" style="margin-top:8px">挂牌价≠成交价，实际成交以议价为准；数据仅供决策参考。</div>`;
+  // 头部与走势图容器分离：切换地区只更新头部，走势图实例复用不重建
+  let top=document.getElementById("zhMarketTop");
+  if(!top){
+    box.innerHTML=`<div id="zhMarketTop"></div>
+      <div class="zh-trend">
+        <div class="zhd-title"><span id="zhTrendTitle">近 12 个月挂牌均价走势（元/㎡）</span></div>
+        <div style="position:relative;height:230px"><canvas id="zhTrendCanvas"></canvas></div>
+        <div class="zh-table" id="zhTrendTable"></div>
+        <div class="t-note" id="zhTrendNote">金色线：全市二手挂牌均价（月度序列，最新月为实时值）。分区月度历史走势暂无公开数据，可切换地区查看各区最新挂牌价与环比。成交价暂无公开实时序列，实际成交请以议价为准。表中涨跌按 A 股习惯：红涨绿跌。</div>
+      </div>`;
+    top=document.getElementById("zhMarketTop");
+  }
+  top.innerHTML=headHtml;
+  const tt=document.getElementById("zhTrendTitle");
+  if(tt) tt.textContent="近 12 个月挂牌均价走势（元/㎡）"+(cur!=="all"?" · "+dname+" 当前 "+Math.round(avg).toLocaleString("en-US")+" 元/㎡":"");
+  const tn=document.getElementById("zhTrendNote");
+  if(tn) tn.innerHTML="金色线：全市二手挂牌均价（月度序列，最新月为实时值）"+(cur!=="all"?"；灰色虚线："+dname+" 当前挂牌价":"")+"。分区月度历史走势暂无公开数据，可切换地区查看各区最新挂牌价与环比。成交价暂无公开实时序列，实际成交请以议价为准。表中涨跌按 A 股习惯：红涨绿跌。";
   let trend=(d.trend&&d.trend.length)?d.trend:null;
   if(!trend){
     trend=ZH_TREND_BASE.map(m=>({month:m[0],price:m[1]}));
     if(d.secondAvg) trend[trend.length-1]={month:trend[trend.length-1].month,price:Math.round(d.secondAvg)};
   }
-  if(trend.length){
-    box.innerHTML+=`<div class="zh-trend">
-      <div class="zhd-title">近 12 个月挂牌均价走势（元/㎡）${cur!=="all"?" · "+dname+" 当前 "+Math.round(avg).toLocaleString("en-US")+" 元/㎡":""}</div>
-      <div style="position:relative;height:230px"><canvas id="zhTrendCanvas"></canvas></div>
-      <div class="zh-table" id="zhTrendTable"></div>
-      <div class="t-note">金色线：全市二手挂牌均价（月度序列，最新月为实时值）${cur!=="all"?"；灰色虚线："+dname+" 当前挂牌价":""}。分区月度历史走势暂无公开数据，可切换地区查看各区最新挂牌价与环比。成交价暂无公开实时序列，实际成交请以议价为准。表中涨跌按 A 股习惯：红涨绿跌。</div></div>`;
-    d.trend=trend;
-    renderZhTrend(d, cur!=="all"?{name:dname,price:avg}:null);
-  }
+  if(trend.length){ d.trend=trend; renderZhTrend(d, cur!=="all"?{name:dname,price:avg}:null); }
 }
 function switchZhDist(name){
   window.__zhDist=name;
@@ -2011,7 +2018,6 @@ document.addEventListener("click", function(ev){
 function renderZhTrend(d, distRef){
   const cv=document.getElementById("zhTrendCanvas"); if(!cv) return;
   const tr=d.trend||[]; if(!tr.length) return;
-  if(window.__zhTrendChart){ try{ window.__zhTrendChart.destroy(); }catch(e){} window.__zhTrendChart=null; }
   const tb=document.getElementById("zhTrendTable");
   if(tb){
     let rows="";
@@ -2030,13 +2036,23 @@ function renderZhTrend(d, distRef){
   }
   const chgs=[];
   for(let i=0;i<tr.length;i++) chgs.push(i>0?((tr[i].price-tr[i-1].price)/tr[i-1].price*100):null);
+  const labels=tr.map(t=>t.month.replace("-","年")+"月");
   const ds=[{label:"全市挂牌均价",data:tr.map(t=>t.price),borderColor:"#e8b339",
     backgroundColor:"rgba(232,179,57,.10)",fill:true,tension:.25,pointRadius:3.5,pointHoverRadius:6}];
   if(distRef) ds.push({label:distRef.name+"当前",data:tr.map(()=>distRef.price),borderColor:"#8b97ad",
     borderDash:[5,4],pointRadius:0,fill:false,tension:0});
+  // 复用已有实例：只更新数据重绘，canvas 不重建（根治切换空白）
+  if(window.__zhTrendChart){
+    try{
+      window.__zhTrendChart.data.labels=labels;
+      window.__zhTrendChart.data.datasets=ds;
+      window.__zhTrendChart.update();
+    }catch(e){ console.error("走势图更新失败:", e); }
+    return;
+  }
   try{
     window.__zhTrendChart=new Chart(cv,{type:"line",
-      data:{labels:tr.map(t=>t.month.replace("-","年")+"月"),datasets:ds},
+      data:{labels:labels,datasets:ds},
       options:{maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
         plugins:{legend:{labels:{color:"#f1f0ea",boxWidth:10,padding:8,font:{size:11}}},
           tooltip:{callbacks:{
@@ -2048,7 +2064,6 @@ function renderZhTrend(d, distRef){
             }}}},
         scales:{x:{ticks:{color:"#9896a6",maxTicksLimit:12,autoSkip:false,maxRotation:0,minRotation:0,font:{size:10}},grid:{color:"rgba(255,255,255,.05)"}},
           y:{ticks:{color:"#9896a6",callback:v=>v>=10000?(v/10000)+"万":v},grid:{color:"rgba(255,255,255,.05)"}}}}});
-    // 等布局完成后再校正一次尺寸（容器重写后 canvas 尺寸可能为 0）
     setTimeout(()=>{ try{ if(window.__zhTrendChart) window.__zhTrendChart.resize(); }catch(e){} }, 120);
   }catch(err){ console.error("走势图渲染失败:", err); }
 }
