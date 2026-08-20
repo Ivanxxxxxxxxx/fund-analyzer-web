@@ -367,6 +367,16 @@ table.plan th{color:var(--muted);font-weight:600}
 .ni-ic .i{width:20px;height:20px}
 .k-l .i,.vt .i,.td-t .i{width:15px;height:15px}
 button .i{width:14px;height:14px;vertical-align:-0.18em;margin-right:5px}
+
+/* ---------- 月度走势明细表 ---------- */
+.zh-table{margin-top:10px;max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:10px}
+.zh-table table{width:100%;border-collapse:collapse;font-size:12px}
+.zh-table th,.zh-table td{padding:6px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+.zh-table th{color:var(--muted);font-weight:600;font-size:11px;background:rgba(255,255,255,.03);position:sticky;top:0}
+.zh-table tbody tr:hover td{background:rgba(255,255,255,.03)}
+.zh-table td.up{color:var(--up);font-weight:600;font-family:var(--mono)}
+.zh-table td.down{color:var(--down);font-weight:600;font-family:var(--mono)}
+.zh-table td:last-child{text-align:right}
 /* ---------- 响应式 ---------- */
 @media(max-width:1080px){
   .kpi-row{grid-template-columns:repeat(2,1fr)}
@@ -1893,8 +1903,9 @@ function renderZhMarket(d){
   if(trend.length){
     box.innerHTML+=`<div class="zh-trend">
       <div class="zhd-title">近 12 个月挂牌均价走势（元/㎡）</div>
-      <div style="position:relative;height:200px"><canvas id="zhTrendCanvas"></canvas></div>
-      <div class="t-note">金色线：二手挂牌均价（月度序列，最新月为实时值）；紫色虚线：新房均价（最新，近似成交参考）。成交价暂无公开实时序列，实际成交请以议价为准。</div></div>`;
+      <div style="position:relative;height:230px"><canvas id="zhTrendCanvas"></canvas></div>
+      <div class="zh-table" id="zhTrendTable"></div>
+      <div class="t-note">金色线：二手挂牌均价（月度序列，最新月为实时值）；紫色虚线：新房均价（最新，近似成交参考）。成交价暂无公开实时序列，实际成交请以议价为准。表中涨跌按 A 股习惯：红涨绿跌。</div></div>`;
     d.trend=trend;
     renderZhTrend(d);
   }
@@ -1903,15 +1914,42 @@ function renderZhTrend(d){
   const cv=document.getElementById("zhTrendCanvas"); if(!cv) return;
   const tr=d.trend||[]; if(!tr.length) return;
   if(window.__zhTrendChart) window.__zhTrendChart.destroy();
+  // 月度明细表（月份 | 均价 | 环比，红涨绿跌）
+  const tb=document.getElementById("zhTrendTable");
+  if(tb){
+    let rows="";
+    for(let i=0;i<tr.length;i++){
+      const t=tr[i];
+      const prev=i>0?tr[i-1].price:null;
+      let chg="—",cls="";
+      if(prev){
+        const c=(t.price-prev)/prev*100;
+        chg=(c>=0?"+":"")+c.toFixed(1)+"%";
+        cls=c>=0?"up":"down";
+      }
+      rows+=`<tr><td>${t.month.replace("-","年")}月</td><td>${Math.round(t.price).toLocaleString("en-US")} 元/㎡</td><td class="${cls}">${chg}</td></tr>`;
+    }
+    tb.innerHTML=`<table><thead><tr><th>月份</th><th>二手挂牌均价</th><th>环比</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }
+  // 环比序列用于 tooltip
+  const chgs=[];
+  for(let i=0;i<tr.length;i++) chgs.push(i>0?((tr[i].price-tr[i-1].price)/tr[i-1].price*100):null);
   const ds=[{label:"二手挂牌均价",data:tr.map(t=>t.price),borderColor:"#e8b339",
-    backgroundColor:"rgba(232,179,57,.10)",fill:true,tension:.3,pointRadius:2}];
+    backgroundColor:"rgba(232,179,57,.10)",fill:true,tension:.25,pointRadius:3.5,pointHoverRadius:6}];
   if(d.newAvg) ds.push({label:"新房均价(最新)",data:tr.map(()=>d.newAvg),borderColor:"#8b7cf6",
     borderDash:[5,4],pointRadius:0,fill:false,tension:0});
   window.__zhTrendChart=new Chart(cv,{type:"line",
-    data:{labels:tr.map(t=>t.month.slice(2)),datasets:ds},
-    options:{maintainAspectRatio:false,
-      plugins:{legend:{labels:{color:"#f1f0ea",boxWidth:10,padding:8,font:{size:11}}}},
-      scales:{x:{ticks:{color:"#9896a6",maxTicksLimit:7},grid:{color:"rgba(255,255,255,.05)"}},
+    data:{labels:tr.map(t=>t.month.replace("-","年")+"月"),datasets:ds},
+    options:{maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
+      plugins:{legend:{labels:{color:"#f1f0ea",boxWidth:10,padding:8,font:{size:11}}},
+        tooltip:{callbacks:{
+          title:items=>items[0]?items[0].label:"",
+          label:c=>{
+            if(c.datasetIndex===1) return c.dataset.label+": "+Math.round(c.parsed.y).toLocaleString("en-US")+" 元/㎡";
+            const chg=chgs[c.dataIndex];
+            return c.dataset.label+": "+Math.round(c.parsed.y).toLocaleString("en-US")+" 元/㎡（环比 "+(chg==null?"—":(chg>=0?"+":"")+chg.toFixed(1)+"%")+"）";
+          }}}},
+      scales:{x:{ticks:{color:"#9896a6",maxTicksLimit:12,autoSkip:false,maxRotation:0,minRotation:0,font:{size:10}},grid:{color:"rgba(255,255,255,.05)"}},
         y:{ticks:{color:"#9896a6",callback:v=>v>=10000?(v/10000)+"万":v},grid:{color:"rgba(255,255,255,.05)"}}}}});
 }
 function updateSummaries(){
