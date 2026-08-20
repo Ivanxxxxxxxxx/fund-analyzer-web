@@ -1899,6 +1899,22 @@ function calcRentYield(){
     advHtml='<div class="adv-card '+vcls+'"><div class="adv-v">'+verdict+'</div><ul>'+pts.map(p=>'<li>'+p+'</li>').join("")+'</ul></div>';
   } else {
     refHtml='<div class="t-note">珠海参考（2026 年 8 月公开数据）：全市二手均价约 1.6 万/㎡、主流租售比约 1:45~52（租金回报率约 2%），整体偏高；分区：横琴 ~3.5万/㎡、高新区 ~2.0万/㎡、香洲 ~2.0万/㎡、金湾 ~0.97万/㎡、斗门 ~0.78万/㎡。自住优先看通勤/学区/配套；纯投资需精选核心区优质盘。</div>';
+    // 行情未加载时，按租售比给基础建议（保证建议卡始终可见）
+    let verdict, vcls, pts=[];
+    if(years>50){
+      verdict="不建议纯投资买入"; vcls="bad";
+      pts.push("回本需 "+years.toFixed(0)+" 年、租金回报率仅 "+yld.toFixed(2)+"%，纯收租极不划算");
+      pts.push("自住刚需可大幅议价入手，投资请暂时放弃");
+    } else if(years>35){
+      verdict="谨慎观望"; vcls="warn";
+      pts.push("回本约 "+years.toFixed(0)+" 年，处于偏高区间，主要靠房价上涨预期支撑");
+      pts.push("行情加载后可结合所在区挂牌趋势进一步判断");
+    } else {
+      verdict="可谈价入手"; vcls="good";
+      pts.push("回本约 "+years.toFixed(0)+" 年，处于合理区间");
+      pts.push("建议按合理区间上限以下出价，留足议价空间");
+    }
+    advHtml='<div class="adv-card '+vcls+'"><div class="adv-v">'+verdict+'</div><ul>'+pts.map(p=>'<li>'+p+'</li>').join("")+'</ul></div>';
   }
   box.innerHTML=`
     <div class="t-out-grid">
