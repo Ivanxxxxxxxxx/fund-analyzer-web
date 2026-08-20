@@ -340,6 +340,28 @@ table.plan th{color:var(--muted);font-weight:600}
   .t-row .t-in{width:120px}
 }
 @media(max-width:480px){.t-out-grid{grid-template-columns:1fr}}
+
+/* ---------- 珠海实时行情卡 ---------- */
+.zh-market{margin-top:14px;padding:13px;background:rgba(56,189,248,.04);border:1px solid rgba(56,189,248,.22);border-radius:12px}
+.zhm-h{display:flex;align-items:center;gap:10px;font-size:13.5px;font-weight:650;margin-bottom:10px;flex-wrap:wrap}
+.zhm-src{font-size:11px;color:var(--muted);font-weight:400}
+.zhm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.zhm-cell{display:flex;flex-direction:column;gap:3px;padding:9px 11px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px}
+.zh-l{font-size:11px;color:var(--muted)}
+.zh-v{font-size:17px;font-weight:750;font-family:var(--mono);color:var(--text)}
+.zh-v i{font-style:normal;font-size:11px;color:var(--muted);font-weight:400;margin-left:2px}
+.zh-c{font-size:11px;font-weight:600}
+.zh-c.up{color:var(--up)} .zh-c.down{color:var(--down)}
+.zhd-title{font-size:12px;color:var(--muted);margin:12px 0 6px}
+.zhd{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.zhd-row{display:flex;align-items:center;justify-content:space-between;font-size:12px;padding:5px 9px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:8px}
+.zhd-row span{color:var(--muted)}
+.zhd-row b{font-family:var(--mono);font-size:12.5px;color:var(--text)}
+.zhd-row b i{font-style:normal;font-size:10px;color:var(--muted);font-weight:400}
+@media(max-width:640px){
+  .zhm-grid{grid-template-columns:1fr}
+  .zhd{grid-template-columns:1fr 1fr}
+}
 /* ---------- 响应式 ---------- */
 @media(max-width:1080px){
   .kpi-row{grid-template-columns:repeat(2,1fr)}
@@ -607,6 +629,7 @@ table.plan th{color:var(--muted);font-weight:600}
         </div>
         <button class="btn-primary" onclick="calcRentYield()" style="width:100%;margin-top:6px">测算租售比 & 合理价位</button>
         <div class="t-out" id="ypo"><div class="muted">输入房源总价和月租金，测算回本年数、年租金回报率、合理购房总价区间，并结合珠海行情给出建议。</div></div>
+        <div class="zh-market" id="zhMarket"><div class="muted">正在获取珠海实时挂牌行情…</div></div>
       </div>
     </div>
   </div></div></div>
@@ -1633,6 +1656,7 @@ function switchView(key){
   document.querySelectorAll(".nav-item,.tb-item").forEach(b=>b.classList.toggle("on", b.dataset.view===key));
   try{ localStorage.setItem("fp_view", key); }catch(e){}
   window.scrollTo({top:0, behavior:"auto"});
+  if(key==="calc") loadZhMarket(false);  // 进入工具视图时自动加载珠海实时行情
   // 修复：在隐藏视图里创建的 canvas 图表尺寸为 0，切回后需重新布局
   setTimeout(()=>{
     try{ if(typeof donutChart!=="undefined" && donutChart) donutChart.resize(); }catch(e){}
@@ -1719,6 +1743,15 @@ function calcRentYield(){
   else if(years<=50){ grade="偏高（依赖房价上涨预期）"; col="var(--warn)"; }
   else { grade="高估（纯收租极不划算）"; col="var(--bad)"; }
   const gap=total-high;
+  // 珠海实时行情（优先用接口实时值，失败回退内置参考）
+  const mk=window.__zhMarket&&window.__zhMarket.ok?window.__zhMarket:null;
+  let refHtml;
+  if(mk){
+    const dstr=(mk.districts||[]).map(x=>x.name+" "+Math.round(x.secondAvg).toLocaleString("en-US")+"元/㎡").join("、");
+    refHtml='<div class="t-note">珠海实时参考（'+mk.updatedAt+' · '+(mk.source||"吉屋网")+'）：二手挂牌均价约 '+fmtY(mk.secondAvg)+'/㎡，新房 '+fmtY(mk.newAvg)+'/㎡；主流租售比约 1:45~52（回本 45-52 年、租金回报率约 2%），整体偏高。分区二手挂牌：'+dstr+'。自住优先看通勤/学区/配套与月供承受力；纯投资需精选核心区优质盘并留足流动性。</div>';
+  } else {
+    refHtml='<div class="t-note">珠海参考（2026 年 8 月公开数据）：全市二手均价约 1.6 万/㎡、主流租售比约 1:45~52（租金回报率约 2%），整体偏高；分区：横琴 ~3.5万/㎡、高新区 ~2.0万/㎡、香洲 ~2.0万/㎡、金湾 ~0.97万/㎡、斗门 ~0.78万/㎡。自住优先看通勤/学区/配套；纯投资需精选核心区优质盘。</div>';
+  }
   box.innerHTML=`
     <div class="t-out-grid">
       <div><div class="t-ov">${years.toFixed(1)} 年</div><div class="t-ol">回本年数（租售比）</div></div>
@@ -1726,9 +1759,36 @@ function calcRentYield(){
       <div><div class="t-ov" style="font-size:14px">${fmtY(low)} ~ ${fmtY(high)}</div><div class="t-ol">按回报率 2.9%~4% 的合理总价区间</div></div>
     </div>
     <div class="t-note">该房源总价 ${fmtY(total)}${total>high?"，比合理区间上限高 "+fmtY(gap)+"（约 "+(gap/high*100).toFixed(0)+"%）：从纯收租看偏贵，主要靠房价增值预期支撑；若租金未来大涨或自住通勤便利，另当别论。":"，在合理区间内：租金回报能覆盖持有成本，性价比尚可。"}</div>
-    <div class="t-note">珠海参考（2026 年 8 月公开数据，供参考）：全市二手均价约 1.6 万/㎡、主流租售比约 1:45~52（回本 45-52 年、租金回报率约 2%），整体偏高；分区：横琴 ~3.5万/㎡、高新区 ~2.0万/㎡、香洲 ~2.0万/㎡、金湾 ~0.97万/㎡、斗门 ~0.78万/㎡。自住优先看通勤/学区/配套与月供承受力；纯投资需精选核心区优质盘并留足流动性。</div>`;
+    ${refHtml}`;
 }
 
+// ---------- 珠海实时行情 ----------
+let __zhMarket=null, __zhLoaded=false;
+async function loadZhMarket(force){
+  const box=document.getElementById("zhMarket"); if(!box) return;
+  if(__zhLoaded && !force){ renderZhMarket(__zhMarket); return; }
+  box.innerHTML='<div class="zhm-h"><span>📡 珠海实时行情</span><button class="btn-ghost btn-sm" onclick="loadZhMarket(true)">↻ 刷新</button></div><div class="muted" style="padding:6px 0">正在获取珠海挂牌价…</div>';
+  const d=await api("/api/zhuhai-market", 40000).catch(()=>null);
+  __zhMarket=d; __zhLoaded=true;
+  renderZhMarket(d);
+}
+function renderZhMarket(d){
+  const box=document.getElementById("zhMarket"); if(!box) return;
+  if(!d||!d.ok){ box.innerHTML='<div class="zhm-h"><span>📡 珠海实时行情</span><button class="btn-ghost btn-sm" onclick="loadZhMarket(true)">↻ 刷新</button></div><div class="muted" style="padding:6px 0">行情获取失败，建议按当地实际挂牌价参考。</div>'; return; }
+  const chgCls=v=>String(v).startsWith("-")?"down":"up";
+  const chgTxt=v=>String(v).startsWith("-")?v+"%":(String(v).startsWith("+")?v+"%":"+"+v+"%");
+  const rows=(d.districts||[]).map(x=>
+    `<div class="zhd-row"><span>${x.name}</span><b>${Math.round(x.secondAvg).toLocaleString("en-US")}<i>元/㎡</i></b></div>`).join("");
+  box.innerHTML=`
+    <div class="zhm-h"><span>📡 珠海实时行情</span><span class="zhm-src">${d.source||""}</span><button class="btn-ghost btn-sm" onclick="loadZhMarket(true)">↻ 刷新</button></div>
+    <div class="zhm-grid">
+      <div class="zhm-cell"><span class="zh-l">新房均价</span><b class="zh-v">${fmtY(d.newAvg)}<i>/㎡</i></b><span class="zh-c ${chgCls(d.newChg)}">${chgTxt(d.newChg)}</span></div>
+      <div class="zhm-cell"><span class="zh-l">二手挂牌均价</span><b class="zh-v">${fmtY(d.secondAvg)}<i>/㎡</i></b><span class="zh-c ${chgCls(d.secondChg)}">${chgTxt(d.secondChg)}</span></div>
+      <div class="zhm-cell"><span class="zh-l">更新时间</span><b class="zh-v" style="font-size:15px">${d.updatedAt||"—"}</b><span class="zh-c ${d.stale?"":"up"}">${d.stale?"参考值":"实时"}</span></div>
+    </div>
+    ${rows?`<div class="zhd-title">分区二手挂牌均价（元/㎡）</div><div class="zhd">${rows}</div>`:""}
+    <div class="t-note" style="margin-top:8px">挂牌价≠成交价，实际成交以议价为准；数据仅供决策参考。</div>`;
+}
 function updateSummaries(){
   const ab=document.getElementById("analyzeBtn");
   if(ab) ab.disabled = holdings.length<1;
