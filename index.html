@@ -191,6 +191,13 @@ table.plan th{color:var(--muted);font-weight:600}
 .badge{display:inline-block;font-size:11px;font-weight:650;border:1px solid;border-radius:999px;padding:2px 10px;flex:none}
 .rf-meta{display:flex;gap:14px;margin-top:8px;font-size:12px;color:var(--muted);flex-wrap:wrap}
 .rf-reason{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.65}
+/* 新：大类配置理由 + 同类排名徽章 + 理由列表 */
+.reco-cat-reason{font-size:12.5px;color:#cdbf8e;background:rgba(232,179,57,.07);border:1px dashed rgba(232,179,57,.3);border-radius:10px;padding:9px 12px;margin:4px 0 10px;line-height:1.6}
+.reco-cat-reason b{color:var(--gold)}
+.rf-peer{font-size:11px;font-weight:650;color:#9bd0ff;background:rgba(120,180,255,.1);border:1px solid rgba(120,180,255,.35);border-radius:999px;padding:2px 9px;flex:none}
+.rf-reasons{margin:8px 0 0;padding-left:18px;font-size:12px;color:var(--muted);line-height:1.7}
+.rf-reasons li{margin:4px 0}
+.rf-reasons li::marker{color:var(--gold)}
 .dyn-banner{background:rgba(232,179,57,.10);border:1px solid rgba(232,179,57,.3);border-radius:10px;padding:10px 12px;font-size:13px;margin-bottom:12px;line-height:1.5}
 .warn-banner{background:rgba(240,162,58,.1);border:1px solid rgba(240,162,58,.35);border-radius:10px;padding:10px 12px;font-size:13px;margin-bottom:12px}
 /* 资产配置进度条 */
@@ -1404,20 +1411,24 @@ async function loadRecommend(){
   window.__recoFunds={};
   const byCat={};
   (d.funds||[]).forEach(f=>{ (byCat[f.category]=byCat[f.category]||[]).push(f); });
+  const catReasons=d.catReasons||{};
   const fundHtml = Object.entries(byCat).map(([cat,fs])=>{
+    const catW=(d.alloc&&d.alloc[cat]!=null)?(d.alloc[cat]*100).toFixed(0)+"%":"";
+    const catReason=catReasons[cat]?`<div class="reco-cat-reason">💡 ${catReasons[cat]}</div>`:"";
     const rows=fs.map(f=>{
       const vc=f.verdict==="推荐"?"var(--good)":(f.verdict==="谨慎关注"?"var(--warn)":"var(--bad)");
-      const valTxt=(f.valPct==null)?"—":f.valPct+"%";
-      const rsn=(f.reasons||[]).join(" ");
+      const valTxt=(f.valPct==null)?"不适用":f.valPct+"%";
+      const peerTxt=(f.peerN&&f.peerN>1)?`<span class="rf-peer">同类第${f.peerRank}/${f.peerN}</span>`:"";
+      const rsnList=(f.reasons||[]).map(r=>`<li>${r}</li>`).join("");
       window.__recoFunds[f.code]=f;
       return `<div class="reco-fund" onclick="addByCode('${f.code}')" title="点击加入组合">
-        <div class="rf-head"><span class="rf-code">${f.code}</span><span class="rf-name">${f.name}</span>
+        <div class="rf-head"><span class="rf-code">${f.code}</span><span class="rf-name">${f.name}</span>${peerTxt}
           <button class="rf-sel" id="sel-${f.code}" onclick="event.stopPropagation();toggleSel('${f.code}')">选入配资</button>
           <span class="badge" style="color:${vc};border-color:${vc}">${f.verdict}</span></div>
-        <div class="rf-meta"><span>评分 ${f.score}</span><span>建议配置 ${(f.weight*100).toFixed(0)}%</span><span>估值 ${valTxt}</span></div>
-        <div class="rf-reason">${rsn}</div></div>`;
+        <div class="rf-meta"><span>综合评分 ${f.score}</span><span>建议配置 ${(f.weight*100).toFixed(0)}%</span><span>估值 ${valTxt}</span></div>
+        <ul class="rf-reasons">${rsnList}</ul></div>`;
     }).join("");
-    return `<div class="reco-cat"><div class="reco-cat-h">${cat}</div>${rows}</div>`;
+    return `<div class="reco-cat"><div class="reco-cat-h">${cat} <span class="muted" style="font-weight:600">${catW}</span></div>${catReason}${rows}</div>`;
   }).join("") || '<span class="muted">基金池校验未通过（数据源海外受限），请手动搜索代码添加。</span>';
   const dynBanner = `<div class="dyn-banner"><svg class="i"><use href="#i-activity"/></svg> <b>动态实时推荐</b>（非内置名单）：本次实时扫描全市场 <b>${d.universe}</b> 只候选基金，按多因子评分精选。数据更新于 <b>${d.generatedAt||"—"}</b>（每 30 分钟自动重扫）。</div>`;
   const warnBanner = (d.note && d.note.indexOf("暂不可用")>=0) ? `<div class="warn-banner">⚠️ 部分品类实时榜单在本节点暂不可用，已留空（可手动添加对应基金）。</div>` : "";
