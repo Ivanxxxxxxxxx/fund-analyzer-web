@@ -368,6 +368,25 @@ table.plan th{color:var(--muted);font-weight:600}
 .k-l .i,.vt .i,.td-t .i{width:15px;height:15px}
 button .i{width:14px;height:14px;vertical-align:-0.18em;margin-right:5px}
 
+
+/* ---------- 地区切换 & 买/等建议 ---------- */
+.zh-dist{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 10px}
+.zd-btn{background:rgba(255,255,255,.05);border:1px solid var(--line2);color:var(--muted);border-radius:999px;padding:5px 13px;font-size:12px;cursor:pointer;transition:.15s}
+.zd-btn:hover{background:rgba(232,179,57,.12);color:var(--text)}
+.zd-btn.on{background:linear-gradient(135deg,#f2c558,#d9a02a);color:#1a1203;border-color:transparent;font-weight:600}
+.zhd-row{cursor:pointer;transition:.15s}
+.zhd-row:hover{border-color:var(--gold)}
+.zhd-row.on{border-color:rgba(232,179,57,.55);background:rgba(232,179,57,.08)}
+.zhd-row .zhd-c{font-style:normal;font-size:11px;font-family:var(--mono);font-weight:600}
+.adv-card{border-radius:12px;padding:12px 14px;margin:4px 0 10px;border:1px solid}
+.adv-card .adv-v{font-size:16px;font-weight:750;letter-spacing:.5px;margin-bottom:8px}
+.adv-card ul{margin:0;padding-left:18px;font-size:12.5px;line-height:1.9;color:var(--muted)}
+.adv-card.good{border-color:rgba(34,197,139,.45);background:rgba(34,197,139,.08)}
+.adv-card.good .adv-v{color:#34d399}
+.adv-card.warn{border-color:rgba(240,162,58,.5);background:rgba(240,162,58,.08)}
+.adv-card.warn .adv-v{color:#f0a23a}
+.adv-card.bad{border-color:rgba(244,83,107,.5);background:rgba(244,83,107,.08)}
+.adv-card.bad .adv-v{color:#fb7185}
 /* ---------- 月度走势明细表 ---------- */
 .zh-table{margin-top:10px;max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:10px}
 .zh-table table{width:100%;border-collapse:collapse;font-size:12px}
@@ -1848,10 +1867,36 @@ function calcRentYield(){
   const gap=total-high;
   // 珠海实时行情（优先用接口实时值，失败回退内置参考）
   const mk=window.__zhMarket&&window.__zhMarket.ok?window.__zhMarket:null;
-  let refHtml;
+  let refHtml="", advHtml="";
   if(mk){
     const dstr=(mk.districts||[]).map(x=>x.name+" "+Math.round(x.secondAvg).toLocaleString("en-US")+"元/㎡").join("、");
     refHtml='<div class="t-note">珠海实时参考（'+mk.updatedAt+' · '+(mk.source||"吉屋网")+'）：二手挂牌均价约 '+fmtY(mk.secondAvg)+'/㎡；主流租售比约 1:45~52（回本 45-52 年、租金回报率约 2%），整体偏高。分区二手挂牌：'+dstr+'。自住优先看通勤/学区/配套与月供承受力；纯投资需精选核心区优质盘并留足流动性。</div>';
+    // 综合建议：全市挂牌趋势 + 所选地区环比 + 租售比 → 明确的买/等结论
+    const trend=mk.trend||[];
+    const curD=window.__zhDist||"all";
+    const dd=curD==="all"?null:(mk.districts||[]).find(x=>x.name===curD);
+    const dname=dd?dd.name:"全市";
+    const distChg=dd?(parseFloat(dd.chg)||0):null;
+    const cityChg=parseFloat(mk.secondChg||"0");
+    const trendChg=(trend.length>=2)?(trend[trend.length-1].price-trend[0].price)/trend[0].price*100:null;
+    let verdict, vcls, pts=[];
+    if(years>50){
+      verdict="不建议纯投资买入"; vcls="bad";
+      pts.push("回本需 "+years.toFixed(0)+" 年、租金回报率仅 "+yld.toFixed(2)+"%，纯收租极不划算");
+      pts.push("自住刚需可大幅议价入手，投资请暂时放弃");
+    } else if((distChg!=null&&distChg<0)||cityChg<0){
+      verdict="建议观望等待"; vcls="warn";
+      if(trendChg!=null) pts.push("全市近 12 个月挂牌累计 "+trendChg.toFixed(1)+"%，整体仍在下行通道");
+      if(distChg!=null) pts.push(dname+"本月环比 "+(distChg>0?"+":"")+distChg.toFixed(1)+"%，挂牌价尚未见底");
+      pts.push("建议再等 2-3 个月，看到价格企稳信号再决策");
+    } else {
+      verdict="可谈价入手"; vcls="good";
+      const pct=(distChg!=null?distChg:cityChg);
+      pts.push(dname+"挂牌环比转正（+"+pct.toFixed(1)+"%），价格有企稳迹象");
+      if(years<=45) pts.push("回本约 "+years.toFixed(0)+" 年，处于合理区间");
+      pts.push("建议按合理区间上限以下出价，留足议价空间");
+    }
+    advHtml='<div class="adv-card '+vcls+'"><div class="adv-v">'+verdict+'</div><ul>'+pts.map(p=>'<li>'+p+'</li>').join("")+'</ul></div>';
   } else {
     refHtml='<div class="t-note">珠海参考（2026 年 8 月公开数据）：全市二手均价约 1.6 万/㎡、主流租售比约 1:45~52（租金回报率约 2%），整体偏高；分区：横琴 ~3.5万/㎡、高新区 ~2.0万/㎡、香洲 ~2.0万/㎡、金湾 ~0.97万/㎡、斗门 ~0.78万/㎡。自住优先看通勤/学区/配套；纯投资需精选核心区优质盘。</div>';
   }
@@ -1862,7 +1907,7 @@ function calcRentYield(){
       <div><div class="t-ov" style="font-size:14px">${fmtY(low)} ~ ${fmtY(high)}</div><div class="t-ol">按回报率 2.9%~4% 的合理总价区间</div></div>
     </div>
     <div class="t-note">该房源总价 ${fmtY(total)}${total>high?"，比合理区间上限高 "+fmtY(gap)+"（约 "+(gap/high*100).toFixed(0)+"%）：从纯收租看偏贵，主要靠房价增值预期支撑；若租金未来大涨或自住通勤便利，另当别论。":"，在合理区间内：租金回报能覆盖持有成本，性价比尚可。"}</div>
-    ${refHtml}`;
+    ${advHtml}${refHtml}`;
 }
 
 // ---------- 珠海实时行情 ----------
@@ -1884,16 +1929,25 @@ function renderZhMarket(d){
   if(!d||!d.ok){ box.innerHTML='<div class="zhm-h"><span><svg class="i"><use href="#i-activity"/></svg> 珠海实时行情</span><button class="btn-ghost btn-sm" onclick="loadZhMarket(true)"><svg class="i"><use href="#i-refresh"/></svg> 刷新</button></div><div class="muted" style="padding:6px 0">行情获取失败，建议按当地实际挂牌价参考。</div>'; return; }
   const chgCls=v=>String(v).startsWith("-")?"down":"up";
   const chgTxt=v=>String(v).startsWith("-")?v+"%":(String(v).startsWith("+")?v+"%":"+"+v+"%");
-  const rows=(d.districts||[]).map(x=>
-    `<div class="zhd-row"><span>${x.name}</span><b>${Math.round(x.secondAvg).toLocaleString("en-US")}<i>元/㎡</i></b></div>`).join("");
+  const dists=d.districts||[];
+  const cur=window.__zhDist||"all";
+  let avg=d.secondAvg, chg=d.secondChg, dname="全市";
+  if(cur!=="all"){ const dd=dists.find(x=>x.name===cur); if(dd){ avg=dd.secondAvg; chg=dd.chg||"0"; dname=dd.name; } }
+  const bar=`<div class="zh-dist">
+    <button class="zd-btn${cur==="all"?" on":""}" onclick="switchZhDist('all')">全市</button>
+    ${dists.map(x=>`<button class="zd-btn${cur===x.name?" on":""}" onclick="switchZhDist('${x.name}')">${x.name}</button>`).join("")}
+  </div>`;
+  const rows=dists.map(x=>
+    `<div class="zhd-row${cur===x.name?" on":""}" onclick="switchZhDist('${x.name}')"><span>${x.name}</span><b>${Math.round(x.secondAvg).toLocaleString("en-US")}<i>元/㎡</i></b><i class="zhd-c ${chgCls(x.chg||"0")}">${chgTxt(x.chg||"0")}</i></div>`).join("");
   box.innerHTML=`
     <div class="zhm-h"><span><svg class="i"><use href="#i-activity"/></svg> 珠海实时行情</span><span class="zhm-src">${d.source||""}</span><button class="btn-ghost btn-sm" onclick="loadZhMarket(true)"><svg class="i"><use href="#i-refresh"/></svg> 刷新</button></div>
+    ${bar}
     <div class="zhm-grid">
-      <div class="zhm-cell"><span class="zh-l">二手挂牌均价</span><b class="zh-v">${fmtY(d.secondAvg)}<i>/㎡</i></b><span class="zh-c ${chgCls(d.secondChg)}">${chgTxt(d.secondChg)}</span></div>
+      <div class="zhm-cell"><span class="zh-l">${dname}二手挂牌均价</span><b class="zh-v">${fmtY(avg)}<i>/㎡</i></b><span class="zh-c ${chgCls(chg)}">${chgTxt(chg)}</span></div>
       <div class="zhm-cell"><span class="zh-l">更新时间</span><b class="zh-v" style="font-size:15px">${d.updatedAt||"—"}</b><span class="zh-c ${d.stale?"":"up"}">${d.stale?"参考值":"实时"}</span></div>
       <div class="zhm-cell"><span class="zh-l">数据口径</span><b class="zh-v" style="font-size:15px">挂牌价</b><span class="zh-c up">≠ 成交价</span></div>
     </div>
-    ${rows?`<div class="zhd-title">分区二手挂牌均价（元/㎡）</div><div class="zhd">${rows}</div>`:""}
+    ${rows?`<div class="zhd-title">各区二手挂牌均价（点击切换地区）</div><div class="zhd">${rows}</div>`:""}
     <div class="t-note" style="margin-top:8px">挂牌价≠成交价，实际成交以议价为准；数据仅供决策参考。</div>`;
   let trend=(d.trend&&d.trend.length)?d.trend:null;
   if(!trend){
@@ -1902,19 +1956,22 @@ function renderZhMarket(d){
   }
   if(trend.length){
     box.innerHTML+=`<div class="zh-trend">
-      <div class="zhd-title">近 12 个月挂牌均价走势（元/㎡）</div>
+      <div class="zhd-title">近 12 个月挂牌均价走势（元/㎡）${cur!=="all"?" · "+dname+" 当前 "+Math.round(avg).toLocaleString("en-US")+" 元/㎡":""}</div>
       <div style="position:relative;height:230px"><canvas id="zhTrendCanvas"></canvas></div>
       <div class="zh-table" id="zhTrendTable"></div>
-      <div class="t-note">金色线：二手挂牌均价（月度序列，最新月为实时值）。成交价暂无公开实时序列，实际成交请以议价为准。表中涨跌按 A 股习惯：红涨绿跌。</div></div>`;
+      <div class="t-note">金色线：全市二手挂牌均价（月度序列，最新月为实时值）${cur!=="all"?"；灰色虚线："+dname+" 当前挂牌价":""}。分区月度历史走势暂无公开数据，可切换地区查看各区最新挂牌价与环比。成交价暂无公开实时序列，实际成交请以议价为准。表中涨跌按 A 股习惯：红涨绿跌。</div></div>`;
     d.trend=trend;
-    renderZhTrend(d);
+    renderZhTrend(d, cur!=="all"?{name:dname,price:avg}:null);
   }
 }
-function renderZhTrend(d){
+function switchZhDist(name){
+  window.__zhDist=name;
+  if(window.__zhMarket&&window.__zhMarket.ok) renderZhMarket(window.__zhMarket);
+}
+function renderZhTrend(d, distRef){
   const cv=document.getElementById("zhTrendCanvas"); if(!cv) return;
   const tr=d.trend||[]; if(!tr.length) return;
   if(window.__zhTrendChart) window.__zhTrendChart.destroy();
-  // 月度明细表（月份 | 均价 | 环比，红涨绿跌）
   const tb=document.getElementById("zhTrendTable");
   if(tb){
     let rows="";
@@ -1931,11 +1988,12 @@ function renderZhTrend(d){
     }
     tb.innerHTML=`<table><thead><tr><th>月份</th><th>二手挂牌均价</th><th>环比</th></tr></thead><tbody>${rows}</tbody></table>`;
   }
-  // 环比序列用于 tooltip
   const chgs=[];
   for(let i=0;i<tr.length;i++) chgs.push(i>0?((tr[i].price-tr[i-1].price)/tr[i-1].price*100):null);
-  const ds=[{label:"二手挂牌均价",data:tr.map(t=>t.price),borderColor:"#e8b339",
+  const ds=[{label:"全市挂牌均价",data:tr.map(t=>t.price),borderColor:"#e8b339",
     backgroundColor:"rgba(232,179,57,.10)",fill:true,tension:.25,pointRadius:3.5,pointHoverRadius:6}];
+  if(distRef) ds.push({label:distRef.name+"当前",data:tr.map(()=>distRef.price),borderColor:"#8b97ad",
+    borderDash:[5,4],pointRadius:0,fill:false,tension:0});
   window.__zhTrendChart=new Chart(cv,{type:"line",
     data:{labels:tr.map(t=>t.month.replace("-","年")+"月"),datasets:ds},
     options:{maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
