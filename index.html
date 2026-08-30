@@ -2684,7 +2684,8 @@ async function loadBacktest(mode){
       const excess=(pr!=null&&br!=null)?+(pr-br).toFixed(1):null;   // 统一一位小数，避免浮点尾巴
       const cls=v=>v==null?"var(--muted)":(v>=0?"var(--up)":"var(--down)");
       const eCls=excess==null?"var(--muted)":(excess>=0?"var(--up)":"var(--down)");
-      const pv=v=>v==null?"—":((+v)>=0?"+":"")+(+v).toFixed(1)+"%";
+      // 与趋势诊断行遵守同一约定：cum 为小数口径（0.2161=+21.61%），显示时 ×100
+      const pv=v=>v==null?"—":((+v*100)>=0?"+":"")+(+v*100).toFixed(1)+"%";
       const chips=(r.picks||[]).map(p=>{
         const nm=p.code?(p.name||p.code):((p.asset||"")+"·"+(p.name||""));
         if(p.fwdRet==null) return `<div class="bt-f"><span class="bt-fn">${nm}</span><span class="muted" style="white-space:nowrap">${p.note||"无数据"}</span></div>`;
